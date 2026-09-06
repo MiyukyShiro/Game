@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Die Großen — ein Nachtstück auf Station</title>
+<meta name="description" content="Ein handgezeichnetes Point-and-Click-Nachtstück: Nell ist auf einer Kinderstation, weil sie Dinge sieht. Heute Nacht ist das Bett neben ihr leer.">
+<meta name="theme-color" content="#0B0A12">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --papier:#EDE3D3; --tinte:#0B0A12; --moos:#7E9C6A; --blut:#B5533F; --dotter:#E8B863;
+  --serif:"Newsreader",Georgia,serif; --titel:"Gloock",Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:#07060B;color:var(--papier);
+  font-family:var(--serif);overscroll-behavior:none;touch-action:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:default}
+canvas.zeigend{cursor:pointer}
+
+#textfeld{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));
+  width:min(760px,92vw);z-index:6;display:none;padding:16px 20px 18px;
+  background:rgba(11,10,18,.9);border:1px solid rgba(237,227,211,.22);
+  box-shadow:0 10px 40px rgba(0,0,0,.6)}
+#textfeld.an{display:block}
+#sprecher{font-family:var(--titel);font-size:13px;letter-spacing:.06em;color:var(--dotter);margin-bottom:5px}
+#satz{font-size:clamp(15px,2.1vw,18.5px);line-height:1.55;min-height:2.6em}
+#weiterzeichen{float:right;color:var(--dotter);opacity:.7;font-size:14px}
+
+#marke{position:fixed;z-index:5;pointer-events:none;font-family:var(--titel);font-size:14px;
+  color:var(--papier);text-shadow:0 2px 10px #000,0 0 4px #000;opacity:0;transition:opacity .12s}
+#marke.an{opacity:1}
+
+#tasche{position:fixed;left:max(12px,env(safe-area-inset-left));top:max(12px,env(safe-area-inset-top));
+  z-index:7;display:flex;gap:7px;pointer-events:auto}
+#tasche .fach{width:46px;height:46px;border:1px solid rgba(237,227,211,.3);background:rgba(11,10,18,.72);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+#tasche .fach:hover{border-color:var(--dotter);background:rgba(232,184,99,.14)}
+#tasche .fach svg{width:30px;height:30px}
+#tasche .fach b{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);
+  font-family:var(--serif);font-size:10.5px;color:#A99C87;white-space:nowrap;font-weight:400}
+#augen{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(90px,env(safe-area-inset-bottom));
+  z-index:7;width:74px;height:74px;border-radius:50%;border:1px solid rgba(237,227,211,.35);
+  background:rgba(11,10,18,.72);color:var(--papier);font-family:var(--titel);font-size:12.5px;
+  display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;cursor:pointer}
+#augen.zu{background:rgba(126,156,106,.34);border-color:var(--moos)}
+#augen.aus{display:none}
+
+.lage{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;justify-content:center;
+  padding:26px;background:radial-gradient(120% 90% at 50% 20%,#161320,#07060B 75%)}
+.lage.an{display:flex}
+.mitte{width:100%;max-width:470px;margin:0 auto}
+h1{font-family:var(--titel);font-size:clamp(38px,10vw,64px);line-height:1;letter-spacing:-.01em}
+h1 small{display:block;font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:clamp(15px,3.4vw,19px);color:#A99C87;letter-spacing:0;margin-top:10px}
+h2{font-family:var(--titel);font-size:28px;margin-bottom:12px}
+.knopf{display:block;width:100%;margin-top:10px;padding:13px 16px;background:transparent;
+  color:var(--papier);border:1px solid rgba(237,227,211,.28);font-family:var(--serif);font-size:16px;
+  cursor:pointer;text-align:left;transition:background .15s,border-color .15s}
+.knopf:hover{background:rgba(232,184,99,.12);border-color:var(--dotter)}
+.knopf.haupt{background:var(--dotter);color:#17130A;border-color:var(--dotter);text-align:center;font-weight:600}
+.knopf.haupt:hover{background:#F4CE85}
+p.leise{color:#A99C87;font-size:14.5px;line-height:1.7;margin:14px 0}
+p.leise b{color:var(--papier);font-weight:400;font-family:var(--titel)}
+.fuss{position:fixed;left:0;right:0;bottom:16px;text-align:center;color:#5B5468;font-size:11.5px;padding:0 20px}
+#wahl{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.wahlknopf{background:rgba(232,184,99,.08);border:1px solid rgba(232,184,99,.45);color:var(--papier);
+  font-family:var(--serif);font-size:15.5px;padding:10px 14px;text-align:left;cursor:pointer}
+.wahlknopf:hover{background:rgba(232,184,99,.2)}
+#augen.sagen{border-color:var(--dotter);background:rgba(232,184,99,.15);color:var(--dotter);font-size:11.5px}
+#augen.gedrueckt{background:rgba(232,184,99,.45);color:#17130A}
+#quer{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;
+  background:#07060B;text-align:center;padding:30px;font-style:italic;color:#A99C87}
+#quer.an{display:flex}
+:focus-visible{outline:1px solid var(--dotter);outline-offset:3px}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="marke"></div>
+<div id="tasche"></div>
+<div id="augen">hin<br>sehen</div>
+<div id="textfeld"><div id="sprecher"></div><div id="satz"></div><div id="wahl"></div></div>
+
+<div class="lage an" id="titel">
+  <div class="mitte">
+    <h1>Die Großen<small>Vor drei Wochen hat Nells Haus gebrannt. Man hat sie draußen gefunden, ihren kleinen Bruder nicht. Heute Nacht um 3:11 klopft jemand an ihre Tür — auf Kinderhöhe.</small></h1>
+    <button class="knopf haupt" id="anfangen">Aufwachen</button>
+    <p class="leise" id="endenstand" style="margin:14px 0 0;font-size:13px"></p>
+    <button class="knopf" id="wieso">Wie man das spielt</button>
+  </div>
+  <div class="fuss">Sechs Kapitel, etwa 30 Minuten, fünf Enden. · Themen: Brand, Verlust eines Geschwisters, Gewalt in der Familie (angedeutet, nie gezeigt). Kein Blut, keine Schrecksprünge.</div>
+</div>
+
+<div class="lage" id="hilfe">
+  <div class="mitte">
+    <h2>Wie man das spielt</h2>
+    <p class="leise">
+      <b>Gehen:</b> Tippe hin, wo Nell hinsoll. Pfeiltasten gehen auch.<br>
+      <b>Ansehen und anfassen:</b> Tippe auf ein Ding. Nell geht hin und macht selbst das Richtige — kein Gegenstandsmenü, kein Kombinieren.<br>
+      <b>Die andere Seite:</b> Der runde Knopf rechts, oder Q. Nell macht die Augen zu und atmet durch. Drüben sieht das Haus aus, wie es sich anfühlt — und manches liegt nur dort.<br>
+      <b>Lange drüben bleiben strengt an.</b> Irgendwann macht Nell von selbst die Augen wieder auf. Verlieren kann man hier nichts.<br>
+      <b>Ruß</b>, die Katze, sagt drüben die Dinge, die Nell nicht sagt. Sie ist der beste Hinweisgeber im Haus.<br>
+      <b>Antworten:</b> Wenn unten Knöpfe stehen, hast du die Wahl. Sie zählt später.<br>
+      <b>Taschenlampe:</b> Sobald sie Batterien hat, leuchtet sie in Blickrichtung. Wo der Strahl hinfällt, wird es hell — im Keller ist das der Unterschied zwischen Weitergehen und Umkehren.<br>
+      <b>Mitnehmen:</b> Was Nell einsteckt, siehst du oben links.
+    </p>
+    <button class="knopf haupt" id="hilfezu">Zurück</button>
+  </div>
+</div>
+
+<div class="lage" id="ende">
+  <div class="mitte">
+    <h2 id="endetitel">Morgen</h2>
+    <p class="leise" id="endetext"></p>
+    <button class="knopf haupt" id="anders">Zurück zur Entscheidung</button>
+    <button class="knopf" id="nochmal">Ganz von vorn</button>
+    <button class="knopf" id="zumtitel">Zum Anfang</button>
+  </div>
+</div>
+
+<div id="quer">Dreh dein Handy quer — das Zimmer ist breiter als hoch.</div>
+
+<script>
+'use strict';
+/* ==========================================================================
+   Das andere Zimmer — handgezeichnetes Point-and-Click-Nachtstück.
+   Alles prozedural gezeichnet, keine Bilddateien, keine Bibliotheken.
+   ========================================================================== */
+
+const VB = 960, VH = 540;          // virtuelle Bühne
+const BODEN = 442;                 // Höhe, auf der gelaufen wird
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let skala = 1, versatzX = 0, versatzY = 0, dpr = 1;
+
+function passeAn() {
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  const b = window.innerWidth, h = window.innerHeight;
+  cv.width = Math.floor(b * dpr); cv.height = Math.floor(h * dpr);
+  skala = Math.min(b / VB, h / VH);
+  versatzX = (b - VB * skala) / 2; versatzY = (h - VH * skala) / 2;
+  const quer = document.getElementById('quer');
+  if (quer) quer.classList.toggle('an', h > b * 1.25 && b < 620);
+}
+window.addEventListener('resize', passeAn);
+window.addEventListener('orientationchange', passeAn);
+const zuBuehne = (px, py) => ({ x: (px - versatzX) / skala, y: (py - versatzY) / skala });
+
+/* ---------- Zufall mit Gedächtnis ---------- */
+const TAU = Math.PI * 2;
+const klemm = (v, a, b) => v < a ? a : v > b ? b : v;
+const misch = (a, b, t) => a + (b - a) * t;
+const zuf = (a, b) => a + Math.random() * (b - a);
+function hash3(x, y, k) {
+  let n = (x | 0) * 374761393 + (y | 0) * 668265263 + (k | 0) * 2147483647;
+  n = (n ^ (n >> 13)) * 1274126177;
+  return ((n ^ (n >> 16)) >>> 0) / 4294967296;
+}
+let kochen = 0;                    // „Boil“: Linien zittern wie bei Handzeichnung
+let zeit = 0;
+
+/* ---------- Tuschefeder ---------- */
+function zitter(x, y, i, staerke) { return (hash3(Math.round(x), Math.round(y), i * 31 + kochen) - 0.5) * staerke; }
+function pfad(punkte, w) {
+  const st = w === undefined ? 2.2 : w;
+  ctx.beginPath();
+  for (let i = 0; i < punkte.length; i += 2) {
+    const x = punkte[i] + zitter(punkte[i], punkte[i + 1], i, st);
+    const y = punkte[i + 1] + zitter(punkte[i + 1], punkte[i], i + 7, st);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+}
+function tuschen(punkte, fuell, strich, dicke, wobbel) {
+  pfad(punkte, wobbel);
+  ctx.closePath();
+  if (fuell) { ctx.fillStyle = fuell; ctx.fill(); }
+  if (strich) { ctx.strokeStyle = strich; ctx.lineWidth = dicke || 2; ctx.lineJoin = 'round'; ctx.stroke(); }
+}
+function linie(x1, y1, x2, y2, farbe, dicke, wobbel) {
+  const n = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1) / 22));
+  const p = [];
+  for (let i = 0; i <= n; i++) { const t = i / n; p.push(misch(x1, x2, t), misch(y1, y2, t)); }
+  pfad(p, wobbel === undefined ? 1.8 : wobbel);
+  ctx.strokeStyle = farbe; ctx.lineWidth = dicke || 2; ctx.lineCap = 'round'; ctx.stroke();
+}
+function kreis(x, y, r, fuell, strich, dicke, wobbel) {
+  const n = Math.max(10, Math.round(r / 2.2));
+  const p = [];
+  for (let i = 0; i < n; i++) { const w = i / n * TAU; p.push(x + Math.cos(w) * r, y + Math.sin(w) * r); }
+  tuschen(p, fuell, strich, dicke, wobbel === undefined ? 1.6 : wobbel);
+}
+function kasten(x, y, b, h, fuell, strich, dicke, wobbel) {
+  tuschen([x, y, x + b, y, x + b, y + h, x, y + h], fuell, strich, dicke, wobbel);
+}
+function schraffur(x, y, b, h, farbe, abstand, neigung, alpha) {
+  ctx.save(); ctx.globalAlpha = alpha === undefined ? 0.22 : alpha;
+  ctx.beginPath(); ctx.rect(x, y, b, h); ctx.clip();
+  for (let i = -h; i < b + h; i += (abstand || 9)) linie(x + i, y + h, x + i + (neigung || h * 0.5), y, farbe, 1, 1.4);
+  ctx.restore();
+}
+
+/* ---------- Papierkorn ---------- */
+const kornC = document.createElement('canvas'); kornC.width = kornC.height = 160;
+(function () {
+  const k = kornC.getContext('2d'), d = k.createImageData(160, 160);
+  for (let i = 0; i < d.data.length; i += 4) {
+    const v = 120 + Math.random() * 135;
+    d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255;
+  }
+  k.putImageData(d, 0, 0);
+})();
+function korn(staerke) {
+  ctx.save(); ctx.globalCompositeOperation = 'overlay'; ctx.globalAlpha = staerke;
+  const s = 160;
+  for (let x = -20; x < VB + 20; x += s) for (let y = -20; y < VH + 20; y += s) ctx.drawImage(kornC, x, y);
+  ctx.restore();
+}
+function vignette(staerke, farbe) {
+  const g = ctx.createRadialGradient(VB / 2, VH / 2, VH * 0.22, VB / 2, VH / 2, VH * 1.05);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, farbe || 'rgba(6,5,10,' + staerke + ')');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, VB, VH);
+}
+
+/* ---------- Farbwelten ---------- */
+const PALETTE = {
+  /* hier: Station bei Nacht — kalt, grünstichig, wenig Licht.
+     drüben: das Haus, wie es in der Brandnacht war. */
+  zimmer: {
+    hier:    { luft: '#0C1214', wand: '#16211F', wand2: '#1D2B27', boden: '#141E1D', linie: '#050809', warm: '#D8B878', akzent: '#4E6E68' },
+    drueben: { luft: '#050303', wand: '#150C08', wand2: '#1E110A', boden: '#0D0705', linie: '#020101', warm: '#D45A28', akzent: '#7A3018' }
+  },
+  flur: {
+    hier:    { luft: '#0A1012', wand: '#141E1E', wand2: '#1B2828', boden: '#121C1C', linie: '#040708', warm: '#D8B878', akzent: '#3E6060' },
+    drueben: { luft: '#040202', wand: '#130A07', wand2: '#1B0F09', boden: '#0B0604', linie: '#020101', warm: '#D45A28', akzent: '#6E2A14' }
+  },
+  bad: {
+    hier:    { luft: '#0A1214', wand: '#16232६'.replace('६','6'), wand2: '#1E2E32', boden: '#121D20', linie: '#040809', warm: '#D8B878', akzent: '#4A6E7A' },
+    drueben: { luft: '#050303', wand: '#160C09', wand2: '#20120B', boden: '#0C0605', linie: '#020101', warm: '#D45A28', akzent: '#7A3018' }
+  },
+  kueche: {
+    hier:    { luft: '#0B1211', wand: '#17221F', wand2: '#1E2C28', boden: '#141E1C', linie: '#050809', warm: '#D8B878', akzent: '#4E6E60' },
+    drueben: { luft: '#050302', wand: '#150B07', wand2: '#1D1009', boden: '#0C0604', linie: '#020101', warm: '#D45A28', akzent: '#6E2A14' }
+  },
+  keller: {
+    hier:    { luft: '#070B0C', wand: '#101817', wand2: '#141F1E', boden: '#0C1413', linie: '#030506', warm: '#D8B878', akzent: '#38504E' },
+    drueben: { luft: '#030101', wand: '#100704', wand2: '#180C06', boden: '#080403', linie: '#010000', warm: '#D45A28', akzent: '#5E2210' }
+  },
+  garten: {
+    hier:    { luft: '#18202E', wand: '#212C40', wand2: '#1A2232', boden: '#202836', linie: '#070A10', warm: '#F0C070', akzent: '#6E8A6A' },
+    drueben: { luft: '#060302', wand: '#160C07', wand2: '#0F0805', boden: '#0A0503', linie: '#020101', warm: '#D45A28', akzent: '#6E2A14' }
+  }
+};
+const P = () => PALETTE[S.szene][S.welt];
+
+
+/* ==========================================================================
+   Zeichenwerkzeug für Körper: weiche Silhouetten statt Striche
+   ========================================================================== */
+const FIG = 1.34;          // Maßstab aller Figuren
+function kurvePfad(p, wobbel) {
+  const n = p.length / 2, w = wobbel === undefined ? 1.3 : wobbel;
+  const X = i => { const k = ((i % n) + n) % n; return p[k * 2] + zitter(p[k * 2], p[k * 2 + 1], k, w); };
+  const Y = i => { const k = ((i % n) + n) % n; return p[k * 2 + 1] + zitter(p[k * 2 + 1], p[k * 2], k + 9, w); };
+  ctx.beginPath();
+  ctx.moveTo((X(0) + X(1)) / 2, (Y(0) + Y(1)) / 2);
+  for (let i = 1; i <= n; i++) ctx.quadraticCurveTo(X(i), Y(i), (X(i) + X(i + 1)) / 2, (Y(i) + Y(i + 1)) / 2);
+  ctx.closePath();
+}
+function form(p, fuell, strich, dicke, wobbel) {
+  kurvePfad(p, wobbel);
+  if (fuell) { ctx.fillStyle = fuell; ctx.fill(); }
+  if (strich) { ctx.strokeStyle = strich; ctx.lineWidth = dicke || 2; ctx.lineJoin = 'round'; ctx.stroke(); }
+}
+/* Gliedmaße: Kette von Punkten mit Dicken, als geschlossene Form */
+function glied(punkte, breiten, fuell, strich, dicke) {
+  const l = [], r = [];
+  for (let i = 0; i < punkte.length; i++) {
+    const a = punkte[Math.max(0, i - 1)], b = punkte[Math.min(punkte.length - 1, i + 1)];
+    let dx = b[0] - a[0], dy = b[1] - a[1];
+    const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
+    const nx = -dy * breiten[i] / 2, ny = dx * breiten[i] / 2;
+    l.push(punkte[i][0] + nx, punkte[i][1] + ny);
+    r.unshift(punkte[i][0] - nx, punkte[i][1] - ny);
+  }
+  form(l.concat(r), fuell, strich, dicke === undefined ? 1.8 : dicke, 0.7);
+}
+/* Cel-Schatten: dunkle Hälfte innerhalb einer Form */
+function formSchatten(p, seite, farbe, staerke) {
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (let i = 0; i < p.length; i += 2) {
+    x0 = Math.min(x0, p[i]); x1 = Math.max(x1, p[i]);
+    y0 = Math.min(y0, p[i + 1]); y1 = Math.max(y1, p[i + 1]);
+  }
+  ctx.save();
+  kurvePfad(p, 0.7); ctx.clip();
+  const g = ctx.createLinearGradient(seite > 0 ? x0 : x1, 0, seite > 0 ? x1 : x0, 0);
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(0.45, 'rgba(0,0,0,0)');
+  g.addColorStop(1, farbe);
+  ctx.globalAlpha = staerke === undefined ? 0.5 : staerke;
+  ctx.fillStyle = g; ctx.fillRect(x0 - 4, y0 - 4, x1 - x0 + 8, y1 - y0 + 8);
+  ctx.restore();
+}
+function saum(x, y, halb, wellen, phase) {
+  const p = [];
+  for (let i = 0; i <= wellen; i++) {
+    const t = i / wellen;
+    p.push(x - halb + t * halb * 2, y + Math.sin(t * Math.PI * wellen + phase) * 2.6);
+  }
+  return p;
+}
+function bodenSchatten(x, y, b, a) {
+  ctx.save(); ctx.globalAlpha = a === undefined ? .32 : a;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, b);
+  g.addColorStop(0, 'rgba(0,0,0,.85)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.ellipse(x, y, b, b * 0.26, 0, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+/* ==========================================================================
+   Nell
+   ========================================================================== */
+function nellZeichnen(x, y, blick, geht, ph, drueben, laterne) {
+  const p = P(), st = p.linie;
+  const haut = drueben ? '#E0D5C0' : '#F0DFC6';
+  const hautS = drueben ? '#A89A82' : '#C4A98A';
+  const kleid = drueben ? '#CFE0C2' : '#E6DCC8';
+  const kleidS = drueben ? '#7E9C6A' : '#9A8B76';
+  const strick = drueben ? '#2E4A38' : '#4A3A5E';
+  const strickS = drueben ? '#1B2E22' : '#2E2340';
+  const haar = drueben ? '#141F18' : '#1C1420';
+  const haarL = drueben ? '#31513C' : '#4A3550';
+
+  /* Dreiviertelprofil: Blickrichtung ist +x, der Rücken liegt bei -x */
+  const SCHULTER_V = 8, SCHULTER_H = -10, SCHULTER_Y = -116;
+  const HUEFTE_Y = -84, KOPF_Y = -133;
+  const schwung = geht ? Math.sin(ph) : 0;
+  const heben = geht ? Math.abs(Math.sin(ph * 2)) * 2.4 : Math.sin(zeit * 1.4) * 0.9;
+  const atmen = Math.sin(zeit * 1.4) * 0.6;
+
+  ctx.save();
+  bodenSchatten(x, y + 2, 28, .36);
+  ctx.translate(x, y - heben);
+  ctx.scale(blick * FIG, FIG);
+
+  /* --- Arm als Pendel: Oberarm schwingt um die Schulter, Ellbogen bleibt gebeugt --- */
+  function armKette(sx2, winkel) {
+    /* Oberarm hängt fast senkrecht, Ellbogen leicht eingedreht */
+    const beuge = 0.18 + Math.max(0, winkel) * 0.35;
+    const ex = sx2 + Math.sin(winkel) * 23, ey = SCHULTER_Y + Math.cos(winkel) * 23;
+    const hx = ex + Math.sin(winkel + beuge) * 20, hy = ey + Math.cos(winkel + beuge) * 20;
+    return [[sx2, SCHULTER_Y], [ex, ey], [hx, hy]];
+  }
+  function handMalen(h, richtung, hautF) {
+    /* kleine Faust mit angedeutetem Daumen statt Kugel */
+    const r = richtung;
+    form([h[0] - 3.2, h[1] - 2, h[0] + 2.6 * r, h[1] - 2.6, h[0] + 4 * r, h[1] + 1.4,
+          h[0] + 2.4 * r, h[1] + 4.6, h[0] - 3, h[1] + 4], hautF, st, 1.3, .5);
+    linie(h[0] + 1.5 * r, h[1] - 1.6, h[0] + 3.2 * r, h[1] + 1.2, hautF === undefined ? st : st, 1.1, .4);
+  }
+  function armMalen(kette, hautF, stoffF, richtung) {
+    glied(kette, [10, 7.5, 5.5], hautF, st, 1.6);
+    handMalen(kette[2], richtung === undefined ? 1 : richtung, hautF);
+    const s0 = kette[0], e0 = kette[1];
+    glied([[s0[0], s0[1] - 3], [s0[0] + (e0[0] - s0[0]) * .44, s0[1] + (e0[1] - s0[1]) * .44]],
+          [12, 9.5], stoffF, st, 1.6);
+  }
+  const schwungArm = geht ? Math.sin(ph) * 0.34 : 0.015;
+  armMalen(armKette(SCHULTER_H, schwungArm), hautS, strickS);        // hinterer Arm
+
+  /* --- Beine: Standbein gestreckt, Spielbein gebeugt und angehoben --- */
+  const bein = (hx, phase, hinten) => {
+    const winkel = Math.sin(phase) * (geht ? 0.34 : 0.02);
+    const schwingt = geht && Math.cos(phase) > 0;          // Bein pendelt nach vorn
+    const anteil = schwingt ? Math.cos(phase) : 0;
+    const knick = 0.06 + 0.45 * anteil;                    // Knie beugt sich beim Schwingen
+    const heben = 4.5 * anteil;                              // und der Fuß hebt ab
+    const kx = hx + Math.sin(winkel) * 38, ky2 = HUEFTE_Y + Math.cos(winkel) * 38;
+    const fx = kx + Math.sin(winkel - knick) * 34, fy = ky2 + Math.cos(winkel - knick) * 34 - heben;
+    const h = hinten ? hautS : haut;
+    glied([[hx, HUEFTE_Y], [kx, ky2], [fx, fy - 2]], [15, 10, 7], h, st, 1.6);
+    /* Der Schuh sitzt über dem Knöchel — keine Socke als Zwischenstück, das gab die Beule */
+    const schien = Math.atan2(fx - kx, fy - ky2) * 0.45;
+    const abstossen = geht && Math.cos(phase) < 0 ? -Math.cos(phase) : 0;
+    ctx.save(); ctx.translate(fx, fy); ctx.rotate(schien - abstossen * 0.22);
+    const oben = hinten ? '#332B48' : '#453A60', sohle = hinten ? '#1D1728' : '#282034';
+    /* Schaft schließt oben bündig um das Bein */
+    tuschen([-4.6, -9, -1, -9.6, 2.6, -8.6, 5.4, -6, 8.2, -3, 9, -1.4, -5.2, -1.4],
+            oben, st, 1.1, .3);
+    tuschen([-5.4, -1.4, 9, -1.4, 9.2, 0.6, -5.6, 0.6], sohle, st, 1, .25);
+    linie(-1, -9.2, 0.6, -3.4, sohle, 0.9, .25);
+    linie(-4.6, -6.4, -5, -1.6, sohle, 0.9, .25);
+    ctx.restore();
+  };
+  bein(-3, ph + Math.PI, true);
+  bein(3, ph, false);
+
+  /* --- Nachthemd, im Profil schmaler --- */
+  const hemd = [-14, -114, -13, -100, -15, -88, -19, -68, -22, -48]
+    .concat(saum(1, -45, 22, 4, zeit * 1.8 + schwung))
+    .concat([23, -48, 20, -68, 16, -88, 14, -100, 15, -114,
+             11, -120, 4, -123, -5, -122, -11, -119]);
+  form(hemd, kleid, st, 2, 1.2);
+  formSchatten(hemd, -1, kleidS, .5);
+  ctx.save(); kurvePfad(hemd, .8); ctx.clip();
+  ctx.globalAlpha = .3; ctx.strokeStyle = kleidS; ctx.lineWidth = 1.8;
+  for (let i = 0; i < 3; i++) {
+    const fx = -8 + i * 9 + schwung * 1.5;
+    ctx.beginPath(); ctx.moveTo(fx, -104);
+    ctx.quadraticCurveTo(fx - 2 + schwung, -74, fx - 5 + schwung * 2, -48); ctx.stroke();
+  }
+  ctx.restore();
+
+  /* Strickjacke: hinten breit, vorne nur ein Streifen */
+  form([-15, -116, -14, -98, -18, -76, -22, -50, -13, -49, -10, -74, -8, -98, -10, -117],
+       strick, st, 1.8, 1.1);
+  form([15, -116, 14, -98, 17, -78, 20, -54, 14, -53, 11, -76, 10, -98, 11, -117],
+       strick, st, 1.8, 1.1);
+  form([-11, -119, 2, -115, 12, -119, 1, -123], strickS, st, 1.5, .7);
+
+  /* vorderer Arm */
+  if (laterne !== null && laterne !== undefined) {
+    const wippen = geht ? Math.sin(ph * 2) * 1.6 : Math.sin(zeit * 1.4) * .8;
+    armMalen([[SCHULTER_V, SCHULTER_Y], [SCHULTER_V + 10, -98 + wippen], [SCHULTER_V + 20, -86 + wippen]],
+             haut, strick);
+    taschenlampeZeichnen(SCHULTER_V + 23, -86 + wippen, laterne);
+  } else armMalen(armKette(SCHULTER_V, -schwungArm), haut, strick);
+
+  /* Hals */
+  glied([[0, -118], [1.5, -128]], [10.5, 9.5], hautS, st, 1.5);
+
+  /* --- Kopf im Dreiviertelprofil: Nase vorn, Hinterkopf hinten --- */
+  const ky = KOPF_Y + atmen;
+  const kopf = [-11, ky - 3, -10, ky - 11, -3, ky - 15, 5, ky - 13, 9, ky - 6,
+                10, ky - 1, 11.5, ky + 2, 9, ky + 4,        // Nasenrücken
+                8, ky + 9, 2, ky + 13, -4, ky + 11, -9, ky + 4];
+  form(kopf, haut, st, 1.8, .9);
+  formSchatten(kopf, -1, hautS, .42);
+  form([-10, ky - 1, -14, ky + 1, -13, ky + 6, -9, ky + 5], haut, st, 1.2, .6);   // Ohr hinten
+
+  /* Haar: Hinterkopf voll, Pony schräg über die Stirn */
+  const wehen = Math.sin(zeit * 1.1) * 1.6 + schwung * 2.2;
+  const kappe = [-12, ky + 3, -14, ky - 8, -8, ky - 16, 2, ky - 18, 9, ky - 12, 10, ky - 6,
+                 6, ky - 8, -1, ky - 7, -6, ky - 3, -9, ky + 2];
+  form(kappe, haar, haar, 1, 1.2);
+  form([-13, ky - 4, -18, ky + 12, -15 + wehen, ky + 28, -7 + wehen, ky + 26,
+        -8, ky + 8, -9, ky - 2], haar, haar, 1, 1.2);      // Strähne über den Rücken
+  ctx.save(); kurvePfad(kappe, 1); ctx.clip();
+  ctx.globalAlpha = .45; ctx.strokeStyle = haarL; ctx.lineWidth = 1.4;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath(); ctx.moveTo(-10 + i * 7, ky - 16);
+    ctx.quadraticCurveTo(-6 + i * 8, ky - 10, -11 + i * 8, ky - 3); ctx.stroke();
+  }
+  ctx.restore();
+
+  /* Gesicht: beide Augen nach vorn versetzt, das hintere schmaler */
+  const blinzelt = Math.sin(zeit * 0.8) > 0.97 || S.augenZu > 0;
+  const gr = drueben ? 1.15 : 1;
+  const auge = (ax, ay, w) => {
+    if (blinzelt) {
+      ctx.beginPath(); ctx.moveTo(ax - 3.2 * w, ay); ctx.quadraticCurveTo(ax, ay + 2.4, ax + 3.2 * w, ay);
+      ctx.strokeStyle = st; ctx.lineWidth = 1.4; ctx.stroke(); return;
+    }
+    form([ax - 3.6 * gr * w, ay + .4, ax - 1.2 * w, ay - 2.8 * gr, ax + 1.6 * w, ay - 2.6 * gr,
+          ax + 3.6 * gr * w, ay + .4, ax + 1.2 * w, ay + 2.8 * gr, ax - 1.6 * w, ay + 2.6 * gr],
+         '#F8F3E7', null, 0, .35);
+    kreis(ax + .4 * w, ay + .3, 2.3 * gr * Math.max(.75, w), drueben ? '#22331F' : '#2A1D36', null, 0, .3);
+    kreis(ax + .4 * w, ay + .3, 1.1, '#08060C', null, 0, .2);
+    kreis(ax - .7, ay - 1, .8, 'rgba(255,255,255,.95)', null, 0, .15);
+    ctx.beginPath(); ctx.moveTo(ax - 4 * w, ay - 1);
+    ctx.quadraticCurveTo(ax, ay - 4.2 * gr, ax + 4 * w, ay - 1);
+    ctx.strokeStyle = st; ctx.lineWidth = 1.4; ctx.stroke();
+  };
+  auge(-0.4, ky + 1, 0.72);      // hinteres Auge, perspektivisch schmaler
+  auge(6.6, ky + 1, 1);
+  ctx.strokeStyle = haar; ctx.lineWidth = 1.3;
+  ctx.beginPath(); ctx.moveTo(-3.2, ky - 4); ctx.quadraticCurveTo(-0.6, ky - 5.4, 1.8, ky - 4.4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(3.8, ky - 4.6); ctx.quadraticCurveTo(6.6, ky - 6, 9, ky - 4); ctx.stroke();
+  ctx.strokeStyle = drueben ? '#6E5A5A' : '#96666A'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(3.4, ky + 8); ctx.quadraticCurveTo(6, ky + 9.4, 8, ky + 7.6); ctx.stroke();
+
+  ctx.restore();
+}
+function taschenlampeZeichnen(x, y, an) {
+  const st = P().linie;
+  /* Griff, leicht nach vorn unten geneigt */
+  ctx.save(); ctx.translate(x, y); ctx.rotate(0.16);
+  form([-16, -5, 2, -6, 3, 6, -16, 5], '#3E4658', st, 1.8, .7);
+  form([-16, -4, -19, -3, -19, 3, -16, 4], '#2A3040', st, 1.5, .6);
+  form([2, -8, 12, -10, 12, 10, 2, 8], an ? '#F6E7C4' : '#565F72', st, 1.9, .7);
+  linie(2, -7, 2, 7, st, 1.6, .5);
+  if (an) {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    kreis(11, 0, 7, 'rgba(255,248,225,.95)', null, 0, .4);
+    kreis(11, 0, 15, 'rgba(255,235,190,.35)', null, 0, .6);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+/* ==========================================================================
+   Jonas
+   ========================================================================== */
+function jonasZeichnen(x, y, blick, geht, ph, drueben) {
+  const p = P(), st = p.linie;
+  const haut = drueben ? '#DCD2BE' : '#EBDCC4';
+  const hautS = drueben ? '#A89A82' : '#C6AF92';
+  const stoff = drueben ? '#7A3018' : '#6E7FA8';
+  const stoffS = drueben ? '#4A1C0E' : '#465A78';
+  const haar = '#2A1E16';
+  const SCH_V = 7, SCH_H = -8, SCH_Y = -74, HUEFTE = -48, KOPF = -90;
+  const heben = geht ? Math.abs(Math.sin(ph * 2)) * 2.2 : Math.sin(zeit * 1.8) * .8;
+  ctx.save();
+  bodenSchatten(x, y + 2, 24, .3);
+  ctx.translate(x, y - heben); ctx.scale(blick * FIG * 0.86, FIG * 0.86);
+
+  const arm = (sx2, winkel, hautF, stoffF) => {
+    const beuge = 0.2 + Math.max(0, winkel) * 0.3;
+    const ex = sx2 + Math.sin(winkel) * 17, ey = SCH_Y + Math.cos(winkel) * 17;
+    const hx = ex + Math.sin(winkel + beuge) * 15, hy = ey + Math.cos(winkel + beuge) * 15;
+    glied([[sx2, SCH_Y], [ex, ey], [hx, hy]], [10, 7, 5], stoffF, st, 1.5);
+    form([hx - 2.6, hy - 1.4, hx + 3, hy - 2, hx + 3.4, hy + 3, hx - 2.6, hy + 3.4], hautF, st, 1.2, .5);
+  };
+  const schwung = geht ? Math.sin(ph) * 0.3 : 0.02;
+  arm(SCH_H, schwung, hautS, stoffS);
+
+  const bein = (hx, phase, hinten) => {
+    const winkel = Math.sin(phase) * (geht ? 0.3 : 0.02);
+    const schwingt = geht && Math.cos(phase) > 0;
+    const anteil = schwingt ? Math.cos(phase) : 0;
+    const kx = hx + Math.sin(winkel) * 24, ky2 = HUEFTE + Math.cos(winkel) * 24;
+    const fx = kx + Math.sin(winkel - (0.06 + 0.4 * anteil)) * 22;
+    const fy = ky2 + Math.cos(winkel - (0.06 + 0.4 * anteil)) * 22 - 3.5 * anteil;
+    glied([[hx, HUEFTE], [kx, ky2], [fx, fy - 2]], [12, 8.5, 6.5], hinten ? stoffS : stoff, st, 1.5);
+    tuschen([fx - 5, fy - 6, fx - 2, fy - 7, fx + 3, fy - 6, fx + 7, fy - 3.5, fx + 8.5, fy - 1.5, fx - 5.5, fy - 1.5],
+            hinten ? stoffS : '#3A4458', st, 1.3, .4);
+    tuschen([fx - 6, fy - 1.5, fx + 8.5, fy - 1.5, fx + 9, fy + 1, fx - 6.5, fy + 1], hinten ? '#181420' : '#221C2C', st, 1.2, .3);
+  };
+  bein(-2.5, ph + Math.PI, true); bein(2.5, ph, false);
+
+  const rumpf = [-11, -72, -12, -60, -13, -50, 13, -50, 12, -60, 11, -72, 6, -77, -5, -77];
+  form(rumpf, stoff, st, 1.9, 1.1);
+  formSchatten(rumpf, -1, stoffS, .55);
+  ctx.save(); kurvePfad(rumpf, .8); ctx.clip(); ctx.globalAlpha = .45;
+  for (let i = -72; i < -50; i += 6) linie(-14, i, 14, i - 1, stoffS, 2.2, .8);
+  ctx.restore();
+
+  arm(SCH_V, -schwung, haut, stoff);
+  glied([[0, -76], [1, -84]], [9.5, 8.5], hautS, st, 1.4);
+
+  /* Kopf im Dreiviertelprofil */
+  const ky = KOPF + Math.sin(zeit * 1.8) * .6;
+  const kopf = [-10, ky - 3, -9, ky - 10, -2, ky - 14, 5, ky - 12, 8, ky - 6,
+                9, ky - 1, 10.5, ky + 2, 8, ky + 4, 7, ky + 8, 1, ky + 12, -4, ky + 10, -8, ky + 3];
+  form(kopf, haut, st, 1.7, .9);
+  formSchatten(kopf, -1, hautS, .4);
+  form([-9, ky - 1, -12.5, ky + 1, -11.5, ky + 5, -8, ky + 4], haut, st, 1.1, .5);
+  form([-11, ky + 2, -12, ky - 8, -6, ky - 15, 3, ky - 16, 9, ky - 10, 9, ky - 5,
+        5, ky - 8, -2, ky - 6, -7, ky - 2], haar, haar, 1, 1.3);
+  for (let i = 0; i < 3; i++) linie(-4 + i * 5, ky - 15, -2 + i * 6, ky - 21, haar, 2.4, 1.1);
+  const zu = Math.sin(zeit * 1.3 + 2) > .96;
+  if (zu) { linie(-2.6, ky + 1, .8, ky + 1, st, 1.4, .5); linie(4.4, ky + 1, 7.8, ky + 1, st, 1.4, .5); }
+  else {
+    const auge = (ax, w) => {
+      form([ax - 3.2 * w, ky + 1.4, ax - 1, ky - 1.2, ax + 1.4, ky - 1, ax + 3.2 * w, ky + 1.4,
+            ax + 1, ky + 3.8, ax - 1.4, ky + 3.6], '#F8F3E7', null, 0, .3);
+      kreis(ax + .3 * w, ky + 1.4, 2 * Math.max(.8, w), '#2A1D36', null, 0, .25);
+      kreis(ax + .3 * w, ky + 1.4, .9, '#08060C', null, 0, .2);
+      ctx.beginPath(); ctx.moveTo(ax - 3.4 * w, ky - .2);
+      ctx.quadraticCurveTo(ax, ky - 3, ax + 3.4 * w, ky - .2);
+      ctx.strokeStyle = st; ctx.lineWidth = 1.3; ctx.stroke();
+    };
+    auge(-0.6, .72); auge(5.6, 1);
+  }
+  ctx.strokeStyle = hautS; ctx.lineWidth = 1.1;
+  ctx.beginPath(); ctx.moveTo(2.4, ky + 4.4); ctx.quadraticCurveTo(4.2, ky + 5.6, 2.4, ky + 6.2); ctx.stroke();
+  ctx.strokeStyle = drueben ? '#7A4A44' : '#96666A'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(-1, ky + 8); ctx.quadraticCurveTo(2, ky + 9.4, 5, ky + 7.8); ctx.stroke();
+  ctx.restore();
+}
+/* ==========================================================================
+   Ruß
+   ========================================================================== */
+function russZeichnen(x, y, blick, drueben, geht, ph) {
+  const p = P(), st = p.linie;
+  const fell = drueben ? '#0C1710' : '#141020';
+  const fellL = drueben ? '#1E3225' : '#292041';
+  const augen = drueben ? '#9CE0A8' : '#E8B863';
+  ctx.save();
+  bodenSchatten(x, y + 1, 19, .28);
+  const hopp = geht ? Math.abs(Math.sin(ph * 2)) * 2.4 : 0;
+  ctx.translate(x, y - hopp); ctx.scale(blick * FIG * 0.72, FIG * 0.72);
+
+  /* Schwanz */
+  const s = Math.sin(zeit * 2) * 9;
+  ctx.beginPath(); ctx.moveTo(-15, -14);
+  ctx.quadraticCurveTo(-30, -18 + s, -26, -38 + s * .7);
+  ctx.strokeStyle = fell; ctx.lineWidth = 6.5; ctx.lineCap = 'round'; ctx.stroke();
+  ctx.strokeStyle = fellL; ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.moveTo(-16, -15); ctx.quadraticCurveTo(-29, -19 + s, -26, -35 + s * .7); ctx.stroke();
+
+  /* Hinterbein */
+  glied([[-8, -6], [-10, -14], [-6, -2]], [10, 12, 7], fell, fell, 1);
+  /* Körper */
+  const leib = [-17, -10, -16, -22, -6, -29, 8, -28, 16, -20, 17, -8, 8, -3, -8, -3];
+  form(leib, fell, fell, 1.2, 1.2);
+  formSchatten(leib, -1, '#000', .35);
+  /* Vorderbeine */
+  glied([[8, -18], [10, -10], [9, -1]], [8, 7, 6], fell, fell, 1);
+  glied([[13, -18], [15, -10], [14, -1]], [8, 7, 6], fell, fell, 1);
+  /* Kopf */
+  const kopf = [4, -30, 6, -38, 13, -42, 21, -39, 24, -32, 21, -26, 12, -24, 5, -26];
+  form(kopf, fell, fell, 1.2, 1.1);
+  form([5, -37, 3, -47, 13, -41], fell, fell, 1, 1.1);
+  form([20, -41, 25, -50, 26, -38], fell, fell, 1, 1.1);
+  form([6, -39, 5, -44, 11, -40], fellL, null, 0, .8);
+  form([21, -42, 24, -47, 25, -39], fellL, null, 0, .8);
+  /* Augen */
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  form([9, -34, 12, -37, 15, -34, 12, -31], augen, null, 0, .4);
+  form([17, -34, 20, -37, 23, -34, 20, -31], augen, null, 0, .4);
+  ctx.restore();
+  linie(11.5, -36, 12.5, -32, '#07060B', 1.4, .3);
+  linie(19.5, -36, 20.5, -32, '#07060B', 1.4, .3);
+  /* Schnurrhaare */
+  ctx.globalAlpha = .5;
+  for (let i = 0; i < 3; i++) linie(23, -31 + i * 2, 34, -34 + i * 4, '#9C93B0', 1, .6);
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/* ==========================================================================
+   Der Große
+   ========================================================================== */
+function schattenZeichnen(x, y, groesse, klar) {
+  ctx.save();
+  ctx.globalAlpha = klar;
+  const h = 190 * groesse, b = 30 * groesse;
+  const wank = Math.sin(zeit * 1.1) * 4;
+  const zipfel = [];
+  for (let i = 0; i <= 7; i++) {
+    const t = i / 7;
+    zipfel.push(x - b * 1.25 + t * b * 2.5, y + Math.sin(t * 9 + zeit * 1.6) * 7);
+  }
+  const leib = [x - b * 1.25, y - h * .12]
+    .concat([x - b * 1.15, y - h * .42, x - b * .8, y - h * .72, x - b * .62 + wank, y - h * .92,
+             x - b * .34 + wank, y - h, x + b * .34 + wank, y - h,
+             x + b * .62 + wank, y - h * .92, x + b * .8, y - h * .72,
+             x + b * 1.15, y - h * .42, x + b * 1.25, y - h * .12])
+    .concat(zipfel.reverse());
+  form(leib, '#06050A', '#06050A', 1, 3.4);
+  ctx.save(); kurvePfad(leib, 2); ctx.clip();
+  ctx.globalAlpha = klar * .3;
+  const g = ctx.createLinearGradient(x - b, 0, x + b, 0);
+  g.addColorStop(0, 'rgba(126,156,106,0)'); g.addColorStop(1, 'rgba(126,156,106,.5)');
+  ctx.fillStyle = g; ctx.fillRect(x - b * 2, y - h, b * 4, h);
+  ctx.restore();
+  /* lange Arme */
+  glied([[x - b * .9, y - h * .7], [x - b * 1.5 + wank, y - h * .42], [x - b * 1.2, y - h * .1]],
+        [13 * groesse, 9 * groesse, 5 * groesse], '#06050A', '#06050A', 1);
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  const a = .45 + .25 * Math.sin(zeit * 3);
+  form([x - 11 + wank, y - h * .86, x - 6 + wank, y - h * .89, x - 2 + wank, y - h * .86,
+        x - 6 + wank, y - h * .83], 'rgba(226,238,220,' + a + ')', null, 0, .3);
+  form([x + 3 + wank, y - h * .86, x + 8 + wank, y - h * .89, x + 12 + wank, y - h * .86,
+        x + 8 + wank, y - h * .83], 'rgba(226,238,220,' + a + ')', null, 0, .3);
+  ctx.restore();
+  ctx.restore();
+}
+
+/* ==========================================================================
+   Räume
+   ========================================================================== */
+function wand(p, tapete) {
+  ctx.fillStyle = p.luft; ctx.fillRect(0, 0, VB, VH);
+  ctx.fillStyle = p.wand; ctx.fillRect(0, 0, VB, BODEN);
+  if (tapete === 'streifen') {
+    ctx.save(); ctx.globalAlpha = .5;
+    for (let x = 20; x < VB; x += 46) { ctx.fillStyle = p.wand2; ctx.fillRect(x, 0, 22, BODEN); }
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha = .14;
+    for (let x = 30; x < VB; x += 46) for (let y = 40; y < BODEN; y += 74)
+      kreis(x, y, 3.4, p.akzent, null, 0, 1.2);
+    ctx.restore();
+  } else if (tapete === 'rinde') {
+    ctx.save(); ctx.globalAlpha = .55;
+    for (let x = -20; x < VB; x += 62) {
+      tuschen([x, 0, x + 44, 0, x + 40, BODEN, x + 4, BODEN], p.wand2, null, 0, 3.5);
+      linie(x + 22, 10, x + 20, BODEN - 10, p.linie, 1.4, 3);
+    }
+    ctx.restore();
+  } else if (tapete === 'station') {
+    /* unten Sockelfarbe, oben hell, dazwischen eine Handlaufleiste */
+    ctx.save();
+    ctx.fillStyle = p.wand2; ctx.globalAlpha = .55;
+    ctx.fillRect(0, BODEN * .58, VB, BODEN * .42);
+    ctx.restore();
+    linie(0, BODEN * .58, VB, BODEN * .58 - 2, p.linie, 3, 2);
+    linie(0, BODEN * .46, VB, BODEN * .46 - 2, p.linie, 5, 2.4);
+    ctx.save(); ctx.globalAlpha = .16;
+    for (let x = 40; x < VB; x += 120) linie(x, 0, x + 4, BODEN * .46, p.linie, 1.4, 2);
+    ctx.restore();
+  } else if (tapete === 'kachel') {
+    ctx.save(); ctx.globalAlpha = .5;
+    for (let y = 6; y < BODEN * .72; y += 30) for (let x = (y / 30 % 2) * 25; x < VB; x += 50)
+      kasten(x, y, 46, 26, p.wand2, p.linie, 1, 1.6);
+    ctx.restore();
+    linie(0, BODEN * .72, VB, BODEN * .72 - 2, p.linie, 3, 2);
+  } else if (tapete === 'stein') {
+    ctx.save(); ctx.globalAlpha = .4;
+    for (let y = 10; y < BODEN; y += 34) for (let x = (y / 34 % 2) * 34; x < VB; x += 68)
+      kasten(x, y, 62, 28, p.wand2, p.linie, 1, 2.2);
+    ctx.restore();
+  }
+  // Tiefe: oben dunkler, unten an der Wand ein Hauch Licht
+  const wg = ctx.createLinearGradient(0, 0, 0, BODEN);
+  wg.addColorStop(0, 'rgba(0,0,0,.45)'); wg.addColorStop(.55, 'rgba(0,0,0,0)');
+  wg.addColorStop(1, 'rgba(255,236,200,.05)');
+  ctx.fillStyle = wg; ctx.fillRect(0, 0, VB, BODEN);
+  linie(0, BODEN, VB, BODEN, p.linie, 3, 2);
+  ctx.fillStyle = p.boden; ctx.fillRect(0, BODEN, VB, VH - BODEN);
+  const bg = ctx.createLinearGradient(0, BODEN, 0, VH);
+  bg.addColorStop(0, 'rgba(255,232,190,.06)'); bg.addColorStop(1, 'rgba(0,0,0,.35)');
+  ctx.fillStyle = bg; ctx.fillRect(0, BODEN, VB, VH - BODEN);
+  ctx.save(); ctx.globalAlpha = .35;
+  for (let i = 0; i < 9; i++) linie(-80 + i * 150, VH, 120 + i * 92, BODEN, p.linie, 1.6, 2);
+  for (let y = BODEN + 22; y < VH; y += 26) linie(0, y, VB, y, p.linie, 1.2, 2);
+  ctx.restore();
+}
+function augenInDerWand(stellen) {
+  ctx.save();
+  for (const s of stellen) {
+    const zu = Math.sin(zeit * 0.7 + s[0]) > 0.9;
+    if (zu) { linie(s[0] - 7, s[1], s[0] + 7, s[1], '#0A140E', 2, 1); continue; }
+    kreis(s[0], s[1], 7.5, '#E7EFE2', '#0A140E', 1.6, 1);
+    kreis(s[0] + Math.sin(zeit * .6) * 2, s[1], 3, '#0A140E', null, 0, .6);
+  }
+  ctx.restore();
+}
+function regenFenster(x, y, b, h, p, drueben) {
+  kasten(x - 8, y - 8, b + 16, h + 16, p.wand2, p.linie, 3, 2.4);
+  const nacht = ctx.createLinearGradient(0, y, 0, y + h);
+  nacht.addColorStop(0, drueben ? '#12281E' : '#1B2440');
+  nacht.addColorStop(1, drueben ? '#0A1710' : '#0F1526');
+  ctx.fillStyle = nacht; ctx.fillRect(x, y, b, h);
+  // Mond
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  const mx = x + b * .68, my = y + h * .3;
+  kreis(mx, my, drueben ? 26 : 15, drueben ? 'rgba(180,240,190,.5)' : 'rgba(235,225,190,.42)', null, 0, 1);
+  ctx.restore();
+  // Bäume draußen
+  ctx.save(); ctx.globalAlpha = .8;
+  for (let i = 0; i < 4; i++) {
+    const tx = x + 12 + i * (b / 4.2);
+    linie(tx, y + h, tx + 4, y + h * .35, '#07100C', 3, 1.6);
+    for (let k = 0; k < 3; k++) linie(tx + 3, y + h * (.5 + k * .13), tx + (k % 2 ? 16 : -14), y + h * (.38 + k * .13), '#07100C', 2, 1.6);
+  }
+  ctx.restore();
+  // Regen
+  if (!drueben) {
+    ctx.save(); ctx.globalAlpha = .5;
+    for (let i = 0; i < 34; i++) {
+      const rx = x + ((i * 71 + zeit * 60) % b), ry = y + ((i * 133 + zeit * 420) % h);
+      linie(rx, ry, rx - 3, ry + 13, '#9FB4D8', 1, .4);
+    }
+    ctx.restore();
+  }
+  // Sprossen
+  linie(x + b / 2, y, x + b / 2, y + h, p.linie, 3, 1.6);
+  linie(x, y + h / 2, x + b, y + h / 2, p.linie, 3, 1.6);
+  kasten(x, y, b, h, null, p.linie, 3, 2);
+}
+
+
+
+/* ==========================================================================
+   Licht der Taschenlampe — ein echter Kegel, kein Fleck
+   ========================================================================== */
+function lampenPunkt() {
+  const n = S.nell;
+  return { x: n.x + n.blick * 55, y: BODEN - 94 + (n.geht ? Math.sin(n.ph * 2) * 2 : 0), dir: n.blick };
+}
+function kegelPfad(x, y, dir, laenge, halb, neig) {
+  ctx.beginPath(); ctx.moveTo(x, y);
+  for (let i = 0; i <= 14; i++) {
+    const a = neig - halb + (i / 14) * halb * 2;
+    ctx.lineTo(x + dir * Math.cos(a) * laenge, y + Math.sin(a) * laenge);
+  }
+  ctx.closePath();
+}
+/* Dunkler Raum: Kegel und Nahbereich werden aus der Schwärze gestanzt */
+function dunkelheit(staerke, notX, notY) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(4,3,8,' + staerke + ')';
+  ctx.fillRect(0, 0, VB, VH);
+  ctx.globalCompositeOperation = 'destination-out';
+  const loch = (x, y, r, a) => {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(0,0,0,' + a + ')'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fill();
+  };
+  if (notX !== undefined) loch(notX, notY, 200, .8);
+  const n = S.nell;
+  loch(n.x, BODEN - 70, S.hat.lampeAn ? 150 : 78, S.hat.lampeAn ? .7 : .5);
+  if (S.hat.lampeAn) {
+    const l = lampenPunkt();
+    kegelPfad(l.x, l.y, l.dir, 470, 0.34, 0.14);
+    const g = ctx.createLinearGradient(l.x, l.y, l.x + l.dir * 470, l.y + Math.sin(.14) * 470);
+    g.addColorStop(0, 'rgba(0,0,0,.99)'); g.addColorStop(.4, 'rgba(0,0,0,.86)');
+    g.addColorStop(.75, 'rgba(0,0,0,.4)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.fill();
+  }
+  ctx.restore();
+}
+/* Sichtbarer Strahl, liegt über allem */
+function lichtStrahl() {
+  if (!S.hat.lampeAn) return;
+  const l = lampenPunkt();
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  kegelPfad(l.x, l.y, l.dir, 470, 0.34, 0.14);
+  const g = ctx.createLinearGradient(l.x, l.y, l.x + l.dir * 470, l.y + Math.sin(.14) * 470);
+  g.addColorStop(0, 'rgba(255,240,208,.34)'); g.addColorStop(.3, 'rgba(255,228,182,.15)');
+  g.addColorStop(1, 'rgba(255,220,170,0)');
+  ctx.fillStyle = g; ctx.fill();
+  const k = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, 70);
+  k.addColorStop(0, 'rgba(255,246,222,.5)'); k.addColorStop(1, 'rgba(255,240,200,0)');
+  ctx.fillStyle = k; ctx.beginPath(); ctx.arc(l.x, l.y, 70, 0, TAU); ctx.fill();
+  /* Lichtpfütze auf dem Boden */
+  const px = l.x + l.dir * 210, py = BODEN + 22;
+  const b = ctx.createRadialGradient(px, py, 0, px, py, 190);
+  b.addColorStop(0, 'rgba(255,232,186,.26)'); b.addColorStop(1, 'rgba(255,232,186,0)');
+  ctx.fillStyle = b; ctx.beginPath(); ctx.ellipse(px, py, 190, 52, 0, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+/* ==========================================================================
+   Raumlicht: eine warme Quelle, dunkle Ecken, Schatten unter den Möbeln
+   ========================================================================== */
+function raumLicht(x, y, farbe, staerke, weite) {
+  ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  const g = ctx.createRadialGradient(x, y, 0, x, y, weite || 520);
+  g.addColorStop(0, farbe);
+  g.addColorStop(.5, farbe.replace(/[\d.]+\)$/, (staerke * .3) + ')'));
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, VB, VH);
+  ctx.restore();
+}
+/* Genau einmal pro Raum, am Ende */
+function eckenAbdunkeln(x, y, weite) {
+  ctx.save(); ctx.globalCompositeOperation = 'multiply';
+  const e = ctx.createRadialGradient(x, y, (weite || 520) * .45, x, y, (weite || 520) * 1.7);
+  e.addColorStop(0, 'rgba(255,255,255,1)'); e.addColorStop(1, 'rgba(120,112,146,1)');
+  ctx.fillStyle = e; ctx.fillRect(0, 0, VB, VH);
+  ctx.restore();
+}
+function moebelSchatten(x, b, tiefe) {
+  ctx.save(); ctx.globalAlpha = .38;
+  const g = ctx.createRadialGradient(x, BODEN + 4, 0, x, BODEN + 4, b);
+  g.addColorStop(0, 'rgba(0,0,0,.9)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.ellipse(x, BODEN + 6, b, (tiefe || 22), 0, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+/* Holz mit Maserung */
+function holz(punkte, grund, dunkel, linien) {
+  tuschen(punkte, grund, P().linie, 2.2, 1.2);
+  ctx.save(); pfad(punkte, 1); ctx.closePath(); ctx.clip();
+  ctx.globalAlpha = .35; ctx.strokeStyle = dunkel; ctx.lineWidth = 1.4;
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+  for (let i = 0; i < punkte.length; i += 2) {
+    x0 = Math.min(x0, punkte[i]); x1 = Math.max(x1, punkte[i]);
+    y0 = Math.min(y0, punkte[i + 1]); y1 = Math.max(y1, punkte[i + 1]);
+  }
+  for (let i = 0; i < (linien || 4); i++) {
+    const y = y0 + (i + .5) * (y1 - y0) / (linien || 4);
+    ctx.beginPath(); ctx.moveTo(x0 - 4, y);
+    ctx.quadraticCurveTo((x0 + x1) / 2, y + (i % 2 ? 3 : -3), x1 + 4, y); ctx.stroke();
+  }
+  ctx.restore();
+}
+/* Bett von der Seite: Kopfteil, Matratze, Decke mit Falten, Kissen */
+function bettZeichnen(x, b, p, d, kissenLinks, zerwuehlt) {
+  const oben = 352, kopfH = 300;
+  moebelSchatten(x + b / 2, b * .62, 20);
+  const holzF = d ? '#1B0F09' : '#4A3A31', holzD = d ? '#0E0705' : '#2C221C';
+  const kx = kissenLinks ? x : x + b - 16;
+  holz([kx, oben + 30, kx, kopfH, kx + 5, kopfH - 8, kx + 16, kopfH - 8, kx + 21, kopfH, kx + 21, oben + 30], holzF, holzD, 3);
+  const fx = kissenLinks ? x + b - 14 : x;
+  holz([fx, oben + 30, fx, oben - 26, fx + 14, oben - 26, fx + 14, oben + 30], holzF, holzD, 2);
+  holz([x + 4, oben + 26, x + b - 4, oben + 26, x + b - 4, oben + 40, x + 4, oben + 40], holzF, holzD, 1);
+  linie(x + 14, oben + 40, x + 15, 442, holzD, 9, 1.2);
+  linie(x + b - 14, oben + 40, x + b - 15, 442, holzD, 9, 1.2);
+  tuschen([x + 8, oben + 28, x + b - 8, oben + 28, x + b - 8, oben + 4, x + 8, oben + 4],
+       d ? '#241309' : '#DED3BE', p.linie, 1.8, 1.2);
+  return { oben: oben, kopfSeite: kissenLinks ? 1 : -1,
+           kissenX: kissenLinks ? x + 24 : x + b - 62, x: x, b: b };
+}
+/* Bettdecke: mit Umschlag am Kopfende, optional über einem Schläfer */
+function deckeZeichnen(bett, p, d, farbe, schatten, schlaeft, atem) {
+  const oben = bett.oben, links = bett.kopfSeite > 0;
+  const dx0 = links ? bett.x + 52 : bett.x + 10;
+  const dx1 = links ? bett.x + bett.b - 10 : bett.x + bett.b - 52;
+  const h = schlaeft ? 13 + atem * .5 : 7;
+  const pkt = [dx0, oben + 24];
+  const n = 9;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    /* Schulter hoch am Kopfende, Hüfte als zweite Welle, Füße flach */
+    const s = links ? t : 1 - t;
+    const koerper = schlaeft
+      ? Math.sin(Math.pow(1 - s, 0.7) * Math.PI) * h + Math.sin(s * Math.PI * 2) * 4 * (1 - s)
+      : Math.sin(t * Math.PI) * h;
+    pkt.push(dx0 + (dx1 - dx0) * t, oben + 2 - koerper);
+  }
+  pkt.push(dx1, oben + 24);
+  form(pkt, farbe, p.linie, 2, 1.4);
+  ctx.save(); kurvePfad(pkt, 1); ctx.clip();
+  ctx.globalAlpha = .45; ctx.strokeStyle = schatten; ctx.lineWidth = 2;
+  for (let i = 0; i < 5; i++) {
+    const fx2 = dx0 + 14 + i * ((dx1 - dx0) / 5);
+    ctx.beginPath(); ctx.moveTo(fx2, oben - 16); ctx.quadraticCurveTo(fx2 + 6, oben + 4, fx2 + 2, oben + 26); ctx.stroke();
+  }
+  ctx.restore();
+  /* Umschlag am Kopfende */
+  const ux = links ? dx0 : dx1 - 40;
+  tuschen([ux, oben + 2, ux + 40, oben - 2, ux + 40, oben + 12, ux, oben + 16],
+          d ? '#3A2010' : '#EFE7D6', p.linie, 1.8, 1.2);
+}
+/* Kissen mit Delle */
+function kissenZeichnen(bett, p, d, belegt) {
+  const px = bett.kissenX, oben = bett.oben;
+  form([px, oben + 6, px + 6, oben - 14, px + 26, oben - 18, px + 40, oben - 8, px + 38, oben + 6],
+       d ? '#3A2010' : '#F2EAD6', p.linie, 1.8, 1.3);
+  if (!belegt) linie(px + 10, oben - 8, px + 30, oben - 11, d ? '#241309' : '#C3B7A0', 1.6, 1);
+}
+/* Schlafende: Kopf im Kissen, Haar, ruhiger Atem */
+function schlaeferZeichnen(bett, p, d, atem) {
+  const oben = bett.oben, links = bett.kopfSeite > 0;
+  const seite = links ? 1 : -1;                 // in diese Richtung schaut das Gesicht
+  const kx = links ? bett.x + 48 : bett.x + bett.b - 48;
+  const ky = oben - 17 - atem * .3;
+  const haar = d ? '#1B0F09' : '#20172A';
+  const haut = d ? '#A89A82' : '#E8D8BE';
+  /* 1. Haarmasse als Hinterkopf, breit aufs Kissen gelegt */
+  kreis(kx - seite * 5, ky, 17, haar, haar, 1, 1.4);
+  form([kx - seite * 12, ky - 8, kx - seite * 26, ky + 2, kx - seite * 34, ky + 13,
+        kx - seite * 20, ky + 15, kx - seite * 8, ky + 10], haar, haar, 1, 1.6);
+  /* 2. Gesicht im Profil darüber */
+  form([kx - seite * 3, ky - 13, kx + seite * 8, ky - 10, kx + seite * 13, ky - 2,
+        kx + seite * 15, ky + 3, kx + seite * 11, ky + 6, kx + seite * 12, ky + 11,
+        kx + seite * 2, ky + 14, kx - seite * 4, ky + 12], haut, p.linie, 1.6, .8);
+  /* Nasenspitze, geschlossenes Auge, Mund */
+  linie(kx + seite * 13, ky + 1, kx + seite * 16, ky + 4, haut, 3.4, .4);
+  linie(kx + seite * 4, ky - 2, kx + seite * 10, ky - 2, p.linie, 1.5, .4);
+  linie(kx + seite * 7, ky + 8, kx + seite * 11, ky + 8, d ? '#7A5A48' : '#B08A78', 1.4, .4);
+  /* 3. Strähne über die Stirn */
+  form([kx - seite * 4, ky - 14, kx + seite * 6, ky - 12, kx + seite * 2, ky - 6,
+        kx - seite * 6, ky - 7], haar, haar, 1, 1.2);
+}
+
+/* Türschild an der Wand */
+function schild(x, y, text, p, d) {
+  const b = text.length > 2 ? 62 : 26;
+  tuschen([x, y, x + b, y, x + b, y + 20, x, y + 20], d ? '#1B0C12' : '#2B3A37', p.linie, 1.8, 1);
+  ctx.save();
+  ctx.fillStyle = d ? '#C8503C' : '#C9BFA8';
+  ctx.font = '600 13px Bricolage Grotesque, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, x + b / 2, y + 15);
+  ctx.restore();
+}
+
+/* ==========================================================================
+   Die fünf Räume dieser Nacht
+   ========================================================================== */
+function moebelKasten(x, y, b, h, p, faecher) {
+  kasten(x, y, b, h, p.wand2, p.linie, 2.6, 2);
+  for (let i = 0; i < (faecher || 3); i++) {
+    kasten(x + 10, y + 12 + i * ((h - 20) / (faecher || 3)), b - 20, (h - 30) / (faecher || 3), null, p.linie, 2, 1.6);
+    kreis(x + b / 2, y + 12 + i * ((h - 20) / (faecher || 3)) + (h - 30) / (faecher || 3) / 2, 4, p.akzent, p.linie, 1.4, 1);
+  }
+}
+function tuerZeichnen(x, y, b, h, p, d, offen, klinke) {
+  const holzF = d ? '#16261F' : '#4A3A31', holzD = d ? '#0A140E' : '#2A1F18';
+  /* Zarge */
+  tuschen([x - 9, y - 9, x + b + 9, y - 9, x + b + 9, y + h, x + b, y + h, x + b, y, x, y, x, y + h, x - 9, y + h],
+          d ? '#0E1A14' : '#3A2E28', p.linie, 2.4, 1.4);
+  if (offen) {
+    ctx.fillStyle = d ? '#050B08' : '#0A0810';
+    ctx.fillRect(x, y, b, h);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createLinearGradient(x, y + h, x, y);
+    g.addColorStop(0, 'rgba(232,184,99,.16)'); g.addColorStop(1, 'rgba(232,184,99,0)');
+    ctx.fillStyle = g; ctx.fillRect(x, y, b, h); ctx.restore();
+    return;
+  }
+  holz([x, y, x + b, y, x + b, y + h, x, y + h], holzF, holzD, 6);
+  tuschen([x + 14, y + 18, x + b - 14, y + 18, x + b - 14, y + 18 + h * .36, x + 14, y + 18 + h * .36],
+          null, holzD, 2, 1.2);
+  tuschen([x + 14, y + h * .52, x + b - 14, y + h * .52, x + b - 14, y + h * .9, x + 14, y + h * .9],
+          null, holzD, 2, 1.2);
+  if (klinke === 'da') { kreis(x + b - 20, y + h * .55, 6, p.warm, p.linie, 2, 1);
+    linie(x + b - 20, y + h * .55, x + b - 30, y + h * .55, p.warm, 3, .8); }
+  else if (klinke === 'loch') kreis(x + b - 20, y + h * .55, 5, '#07060B', p.linie, 1.6, 1);
+}
+const SZENEN = {
+/* ---------------------------------------------------------------- 1 Zimmer */
+zimmer: {
+  titel: 'Kapitel eins · Zimmer 4, 3:11 Uhr', links: 80, rechts: 880,
+  zeichne(w) {
+    const p = P(), d = w === 'drueben';
+    wand(p, d ? 'rinde' : 'station');
+    /* Fußleiste */
+    kasten(0, BODEN - 16, VB, 16, d ? '#0E1A14' : '#332941', p.linie, 2, 1.6);
+    /* Fenster mit Vorhängen */
+    regenFenster(392, 92, 150, 118, p, d);
+    for (let i = 0; i < 2; i++) {
+      const vx = i ? 546 : 344;
+      form([vx, 74, vx + 42, 74, vx + 34, 150, vx + 40, 232, vx + 6, 236, vx + 10, 150],
+           d ? '#16261F' : '#5A4363', p.linie, 2.2, 1.8);
+      ctx.save(); kurvePfad([vx, 74, vx + 42, 74, vx + 34, 150, vx + 40, 232, vx + 6, 236, vx + 10, 150], 1); ctx.clip();
+      ctx.globalAlpha = .35; ctx.strokeStyle = d ? '#0E1A14' : '#3E2C48'; ctx.lineWidth = 2.4;
+      for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.moveTo(vx + 8 + k * 12, 76);
+        ctx.quadraticCurveTo(vx + 4 + k * 12, 150, vx + 12 + k * 12, 234); ctx.stroke(); }
+      ctx.restore();
+    }
+    linie(336, 70, 596, 68, d ? '#0E1A14' : '#2C2238', 5, 1.6);
+    if (d) augenInDerWand([[250, 120], [700, 96], [140, 220]]);
+    /* Betten: links Nells leeres, rechts Mira, die schläft */
+    const atem = 2 + Math.sin(zeit * 0.9) * 1.6;
+    const b1 = bettZeichnen(24, 200, p, d, true, false);
+    kissenZeichnen(b1, p, d, false);
+    deckeZeichnen(b1, p, d, d ? '#241309' : '#6E5F8E', d ? '#0E0705' : '#4E4268', false, 0);
+    const b2 = bettZeichnen(600, 178, p, d, false, true);
+    kissenZeichnen(b2, p, d, true);
+    schlaeferZeichnen(b2, p, d, atem);
+    deckeZeichnen(b2, p, d, d ? '#2A1409' : '#7E6A58', d ? '#0E0705' : '#5A4A3C', true, atem);
+    /* Teppich */
+    ctx.save(); ctx.globalAlpha = .9;
+    form([248, 452, 640, 452, 672, 508, 214, 508], d ? '#132119' : '#4A3550', p.linie, 2.2, 2.4);
+    ctx.globalAlpha = .3; ctx.strokeStyle = d ? '#0A140E' : '#33253C'; ctx.lineWidth = 2;
+    for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.moveTo(240 + i * 14, 506);
+      ctx.lineTo(268 + i * 14, 456); ctx.stroke(); }
+    ctx.restore();
+    /* Zeichnung an der Wand */
+    const zx = 218, zy = 150;
+    ctx.save(); ctx.translate(zx, zy); ctx.rotate(-0.03);
+    kasten(0, 0, 92, 68, d ? '#182A20' : '#EFE7D2', p.linie, 2, 1.4);
+    for (let i = 0; i < 4; i++) {
+      const fx = 18 + i * 18, fy = 46, weg = i === 3 && !d;
+      const c = weg ? '#B0473A' : (d ? '#9CE0A8' : '#6B5F52');
+      kreis(fx, fy - 17, 5, null, c, 1.8, .8);
+      linie(fx, fy - 12, fx, fy - 2, c, 1.8, .8);
+      linie(fx - 6, fy - 9, fx + 6, fy - 9, c, 1.8, .8);
+      linie(fx, fy - 2, fx - 5, fy + 7, c, 1.8, .8); linie(fx, fy - 2, fx + 5, fy + 7, c, 1.8, .8);
+      if (weg) { linie(fx - 9, fy - 24, fx + 9, fy + 9, '#B0473A', 2.4, .8);
+                 linie(fx + 9, fy - 24, fx - 9, fy + 9, '#B0473A', 2.4, .8); }
+    }
+    kreis(76, 16, 8, null, d ? '#9CE0A8' : '#C9A24A', 2, .8);
+    for (let i = 0; i < 6; i++) linie(76 + Math.cos(i) * 11, 16 + Math.sin(i) * 11,
+      76 + Math.cos(i) * 15, 16 + Math.sin(i) * 15, d ? '#9CE0A8' : '#C9A24A', 1.6, .6);
+    ctx.restore();
+    /* Kommode oder Baum */
+    if (d) {
+      form([782, 442, 770, 306, 788, 180, 830, 132, 878, 180, 890, 306, 882, 442], p.wand2, p.linie, 2.6, 3);
+      for (let i = 0; i < 5; i++) linie(792, 200 + i * 46, 866, 190 + i * 46, p.linie, 1.6, 3);
+      kreis(830, 306, 25, '#050B08', p.linie, 2.4, 2);
+      if (!S.hat.klinke) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        kreis(830, 308, 13, 'rgba(156,224,168,.32)', null, 0, 1); ctx.restore(); }
+    } else {
+      moebelSchatten(838, 84, 18);
+      holz([772, 442, 772, 300, 904, 300, 904, 442], '#4A3A31', '#2C221C', 5);
+      holz([764, 300, 912, 300, 908, 288, 768, 288], '#5C4838', '#33271E', 1);
+      for (let i = 0; i < 3; i++) {
+        kasten(782, 310 + i * 44, 112, 36, null, p.linie, 2, 1.4);
+        linie(824, 328 + i * 44, 852, 328 + i * 44, '#C9A24A', 3, .8);
+      }
+      /* Nachtlicht auf der Kommode */
+      form([800, 288, 826, 288, 820, 258, 806, 258], '#D8C9A8', p.linie, 1.8, 1.2);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(813, 272, 0, 813, 272, 200);
+      g.addColorStop(0, 'rgba(255,206,140,.45)'); g.addColorStop(1, 'rgba(255,206,140,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(813, 272, 200, 0, TAU); ctx.fill();
+      ctx.restore();
+    }
+    /* Tür */
+    tuerZeichnen(430, 176, 116, 266, p, d, S.tuerAuf, S.hat.klinke === 'drin' ? 'da' : 'loch');
+    /* Spielzeug auf dem Boden */
+    if (!d) {
+      kreis(300, 462, 9, '#8A5A3C', p.linie, 1.8, 1);
+      kasten(322, 454, 16, 16, '#6A7C9A', p.linie, 1.6, 1.2);
+      kasten(340, 458, 12, 12, '#9A6A6A', p.linie, 1.6, 1.2);
+    }
+    /* Taschenlampe, oben auf der Matratze */
+    if (!S.hat.lampe) {
+      const lx = 150, ly = 342;
+      form([lx - 20, ly + 4, lx + 6, ly, lx + 7, ly + 12, lx - 19, ly + 15], '#3E4658', p.linie, 1.8, 1);
+      form([lx + 6, ly - 2, lx + 17, ly - 4, lx + 17, ly + 16, lx + 6, ly + 14], '#565F72', p.linie, 1.8, 1);
+      kreis(lx + 17, ly + 6, 5, '#8A93A8', p.linie, 1.4, .8);
+    }
+    /* Licht: Mond vom Fenster, Nachtlicht von der Kommode */
+    if (!d) {
+      raumLicht(470, 150, 'rgba(150,180,235,.22)', .22, 520);
+      raumLicht(813, 272, 'rgba(255,196,120,.34)', .34, 460);
+      eckenAbdunkeln(620, 280, 720);
+    } else {
+      raumLicht(830, 300, 'rgba(140,220,160,.18)', .18, 520);
+      eckenAbdunkeln(560, 280, 700);
+    }
+  },
+  dinge: [
+    { id: 'mirabett', x: 596, y: 296, b: 188, h: 146, welt: 'beide', name: 'Miras Bett',
+      tun: () => {
+        if (S.welt === 'drueben')
+          return sag('Nell', 'Auf der anderen Seite liegt ihr Bett voller Asche und sie liegt trotzdem drin.',
+                             'Sie schläft weiter. Sie schläft hier durch alles.');
+        S.weiss.mira++;
+        if (S.weiss.mira === 1) sag('Nell', 'Mira, dreizehn, seit acht Wochen hier. Wecken hat keinen Zweck.',
+          'Sie redet im Schlaf. Meistens Quatsch.');
+        else if (S.weiss.mira === 2) sag('Mira', '(im Schlaf) „... elf ... immer elf ...“'),
+          sag('Nell', 'Drei Uhr elf. Sie sagt das jede Nacht, seit ich hier bin.');
+        else if (S.weiss.mira === 3) {
+          sag('Mira', '(im Schlaf) „Der Kleine war wieder da. Der mit dem einen Schuh.“',
+                      '„Frag ihn mal, wie er heißt. Der sagt dir was anderes, als du denkst.“');
+          sag('Nell', 'Sie hört ihn also auch.',
+                      'Entweder sind wir beide verrückt, oder da läuft wirklich ein Kind über den Flur.',
+                      'Ich habe das noch nie so herum gedacht.');
+        } else sag('Nell', 'Sie murmelt nur noch. Ich lasse sie schlafen.');
+      } },
+    { id: 'meinbett', x: 24, y: 292, b: 200, h: 150, welt: 'beide', name: 'Mein Bett',
+      tun: () => sag('Nell', 'Mein Bett, seit drei Wochen. Ich liege wach und tue so, als würde ich schlafen.',
+                             'Das kann ich hier inzwischen richtig gut.') },
+    { id: 'fenster', x: 384, y: 84, b: 166, h: 134, welt: 'beide', name: 'Fenster',
+      tun: () => sag('Nell', S.welt === 'hier'
+        ? 'Ein Gitter vor dem Glas, außen Regen. Der Innenhof ist leer.'
+        : 'Auf der anderen Seite ist hinter dem Gitter kein Hof. Da ist Wald, und der Wald sieht her.') },
+    { id: 'zeichnung', x: 216, y: 148, b: 96, h: 72, welt: 'beide', name: 'Jonas\u2019 Bild',
+      tun: () => {
+        if (S.welt === 'hier') sag('Nell', 'Das Einzige, was ich noch aus dem Haus habe. Sie haben es in meiner Jackentasche gefunden.',
+          'Vier Leute und eine Sonne, von Jonas gemalt. Der untere Rand ist schwarz und bröselt.',
+          'Einer der vier ist rot durchgestrichen. Das war er selbst. Er hat es zwei Tage vor dem Feuer gemacht.');
+        else sag('Nell', 'Auf der anderen Seite ist das Papier heil und alle vier sehen mich an.',
+          'Der Durchgestrichene lächelt und winkt.');
+      } },
+    { id: 'lampe', x: 124, y: 328, b: 70, h: 40, welt: 'beide', name: 'Taschenlampe',
+      sichtbar: () => !S.hat.lampe,
+      tun: () => {
+        S.hat.lampe = true;
+        if (S.hat.batterien) { S.hat.lampeAn = true;
+          return sag('Nell', 'Meine Taschenlampe. Und die Batterien habe ich schon in der Tasche.',
+                             '(Klack.)', 'Ein weißer Strahl, schmal und sehr wach.'); }
+        sag('Nell', 'Meine Taschenlampe, unter der Matratze. Eigentlich abgegeben, offiziell.',
+                    'Ich drücke, und sie macht nur ein müdes Orange.',
+                    'Ersatzbatterien liegen im Waschraum, im Spiegelschrank. Ich weiß hier inzwischen, wo alles liegt.');
+      } },
+    { id: 'kommode', x: 764, y: 286, b: 148, h: 156, welt: 'hier', name: 'Kommode',
+      tun: () => briefAngefasst() },
+    { id: 'astloch', x: 798, y: 274, b: 68, h: 68, welt: 'drueben', name: 'Astloch',
+      tun: () => {
+        if (S.hat.klinke) return sag('Nell', 'Nur Holzmehl und ein bisschen Dunkelheit.');
+        S.hat.klinke = true;
+        sag('Nell', 'Auf der anderen Seite ist der Nachtschrank ein Baumstumpf, und im Stumpf ist ein Loch.',
+                    'Da drin liegt etwas Kaltes: eine Türklinke.',
+                    'Auf Station haben die Zimmertüren innen keine. Damit niemand rausgeht, wenn keiner guckt.');
+      } },
+    { id: 'tuer', x: 430, y: 176, b: 116, h: 266, welt: 'beide', name: 'Zimmertür',
+      tun: () => {
+        if (S.tuerAuf) return wechsle('flur', 150);
+        if (!S.hat.klinke) return sag('Nell', 'Innen ist nur ein Vierkantloch. Die Klinken haben die Pfleger.',
+          'Jonas ist trotzdem rausgekommen. Also geht es.',
+          'Vielleicht sieht dieses Zimmer anders aus, wenn ich richtig hinsehe.');
+        S.tuerAuf = true; S.hat.klinke = 'drin';
+        sag('Nell', '(Vierkant rein, einmal drücken.)', 'Die Tür geht auf, als wäre sie nie zu gewesen.',
+                    'Auf dem Flur brummt das Notlicht.');
+      } }
+  ]
+},
+
+/* ---------------------------------------------------------------- 2 Flur */
+flur: {
+  titel: 'Kapitel zwei · Der Stationsflur', links: 70, rechts: 890,
+  zeichne(w) {
+    const p = P(), d = w === 'drueben';
+    wand(p, d ? 'rinde' : 'station');
+    /* Zimmer 4 — Nells Tür */
+    tuerZeichnen(36, 186, 100, 256, p, d, false, 'da');
+    schild(52, 160, '4', p, d);
+    /* Zimmer 2 — die Kleinen */
+    tuerZeichnen(158, 186, 100, 256, p, d, false, 'da');
+    schild(174, 160, '2', p, d);
+    /* Aushang */
+    kasten(288, 146, 84, 62, d ? '#0C0508' : '#25322F', p.linie, 2.4, 1.6);
+    ctx.save(); ctx.globalAlpha = .5;
+    for (let i = 0; i < 5; i++) linie(296, 158 + i * 10, 364, 157 + i * 10, p.linie, 1.6, .8);
+    ctx.restore();
+    if (d) augenInDerWand([[330, 176]]);
+    /* Schwesternzimmer */
+    if (d) {
+      kasten(400, 150, 130, 292, p.wand2, p.linie, 3, 3);
+      schraffur(400, 150, 130, 292, p.linie, 8, 60, .45);
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath(); ctx.moveTo(412 + i * 27, 150);
+        ctx.quadraticCurveTo(392 + i * 27, 280, 424 + i * 27, 442);
+        ctx.strokeStyle = p.linie; ctx.lineWidth = 5; ctx.stroke();
+      }
+    } else {
+      tuerZeichnen(400, 150, 130, 292, p, d, false, 'da');
+      ctx.save(); ctx.globalAlpha = .4;
+      linie(404, 440, 526, 438, '#E8C88A', 3, 1.2); ctx.restore();
+      schild(420, 124, 'Dienst', p, d);
+    }
+    /* Waschraum */
+    tuerZeichnen(552, 182, 100, 260, p, d, false, 'da');
+    if (S.badLicht && !d) { ctx.save(); ctx.globalAlpha = .5;
+      linie(556, 440, 648, 438, '#E8C88A', 3, 1.2); ctx.restore(); }
+    /* Tresen mit Telefon */
+    moebelKasten(676, 322, 120, 120, p, 2);
+    const tx = 712;
+    kasten(tx, 290, 46, 32, d ? '#1B0C12' : '#25322F', p.linie, 2.2, 1.4);
+    kreis(tx + 23, 298, 9, null, p.linie, 1.6, 1);
+    tuschen([tx - 4, 288, tx + 50, 288, tx + 46, 278, tx, 278], d ? '#2A0E16' : '#33413E', p.linie, 2, 1.2);
+    if (d || S.jonasDabei) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      kreis(tx + 23, 292, 34 + Math.sin(zeit * 2) * 4,
+            d ? 'rgba(200,80,60,.24)' : 'rgba(232,200,138,.18)', null, 0, 1); ctx.restore(); }
+    /* Kellertreppe */
+    tuschen([830, 442, 960, 442, 960, 300, 830, 342], d ? '#020102' : '#05090A', p.linie, 3, 2.4);
+    for (let i = 0; i < 4; i++) linie(838 + i * 30, 442 - i * 4, 906 + i * 14, 376 - i * 14, p.linie, 2, 2);
+    linie(830, 342, 830, 442, p.linie, 3, 2);
+    /* Jonas' Decke, mitten auf dem Flur liegen geblieben */
+    if (!S.hat.decke) {
+      const dk = [300, 448, 344, 428, 392, 434, 416, 460, 388, 488, 334, 492, 300, 474];
+      form(dk, d ? '#1B0C12' : '#6E5A86', p.linie, 2, 2.2);
+      ctx.save(); kurvePfad(dk, 1.4); ctx.clip();
+      ctx.globalAlpha = .5; ctx.strokeStyle = d ? '#0E0509' : '#4E3E66'; ctx.lineWidth = 2.4;
+      for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.moveTo(310 + i * 34, 430);
+        ctx.quadraticCurveTo(330 + i * 34, 458, 316 + i * 34, 490); ctx.stroke(); }
+      ctx.globalAlpha = .8;
+      for (let i = 0; i < 5; i++) {
+        const sx2 = 318 + i * 22, sy2 = 444 + (i % 3) * 14;
+        for (let k = 0; k < 4; k++) linie(sx2, sy2, sx2 + Math.cos(k * 1.57) * 5, sy2 + Math.sin(k * 1.57) * 5,
+          d ? '#C8503C' : '#D8CDA8', 1.6, .5);
+      }
+      ctx.restore();
+    }
+    /* Sein Hausschuh, oben auf der Kellertreppe */
+    if (!S.schuhGesehen)
+      form([812, 442, 816, 424, 836, 418, 856, 428, 858, 442], d ? '#2A0E16' : '#4A6A9A', p.linie, 2, 1.4);
+    if (d && S.schatten.klar > 0.01) schattenZeichnen(S.schatten.x, 442, 1.25, S.schatten.klar);
+    if (!d) { raumLicht(465, 120, 'rgba(232,208,150,.26)', .26, 560);
+              raumLicht(880, 300, 'rgba(150,180,210,.12)', .12, 420);
+              eckenAbdunkeln(500, 260, 760); }
+    else { raumLicht(465, 300, 'rgba(200,80,60,.10)', .1, 420); eckenAbdunkeln(480, 280, 640); }
+  },
+  dinge: [
+    { id: 'zurueck', x: 36, y: 186, b: 100, h: 256, welt: 'beide', name: 'Zimmer 4',
+      tun: () => wechsle('zimmer', 470) },
+    { id: 'zimmer2', x: 158, y: 186, b: 100, h: 256, welt: 'beide', name: 'Zimmer 2',
+      tun: () => {
+        if (S.jonasDabei) { S.endeArt = 'leise'; return schluss(); }
+        sag('Nell', S.welt === 'hier'
+          ? 'Zimmer 2, die Kleinen. Drei Betten, zwei belegt, eins offen und leer.'
+          : 'Auf der anderen Seite steht die Tür weit auf und dahinter ist nichts als Gang.',
+          S.welt === 'hier'
+            ? 'Vor einer Stunde stand er an meiner Tür und hat die Klinke von außen gedrückt. Dann war er weg.'
+            : 'Ich gehe da nicht rein.');
+      } },
+    { id: 'aushang', x: 284, y: 142, b: 92, h: 70, welt: 'beide', name: 'Aushang',
+      tun: () => sag('Nell', S.welt === 'hier'
+        ? 'Hausordnung, Punkt sieben: Nachtruhe ab einundzwanzig Uhr, Zimmer verlassen nur nach Absprache.'
+        : 'Auf der anderen Seite steht auf dem Blatt nur ein Satz, hundertmal untereinander. Ich lese ihn nicht.') },
+    { id: 'decke', x: 292, y: 424, b: 130, h: 74, welt: 'beide', name: 'Eine Decke',
+      sichtbar: () => !S.hat.decke,
+      tun: () => { S.hat.decke = true;
+        sag('Nell', 'Jonas\u2019 Decke mit den Sternen, mitten auf dem Flur.',
+                    'Er schleppt sie überallhin. Dass sie hier liegt, heißt: Er ist gerannt.'); } },
+    { id: 'mamatuer', x: 400, y: 150, b: 130, h: 292, welt: 'hier', name: 'Schwesternzimmer',
+      tun: () => {
+        S.klopf = (S.klopf || 0) + 1;
+        if (S.klopf === 1) sag('Nell', 'Unter der Tür ist Licht. Frau Kessner hat Nachtdienst und macht Papier.',
+          'Klopfen wäre das Vernünftigste. Klopfen ist auch das, was in der Akte landet.');
+        else if (S.klopf === 2) sag('Nell', 'Beim letzten Mal habe ich nachts geklingelt, weil im Waschraum jemand stand.',
+          'Danach stand ein neues Wort in meiner Akte und meine Besuchszeit wurde kürzer.');
+        else sag('Nell', 'Ich klopfe nicht. Noch nicht.');
+      } },
+    { id: 'mamawand', x: 400, y: 150, b: 130, h: 292, welt: 'drueben', name: 'Wo die Tür war',
+      tun: () => sag('Nell', 'Auf der anderen Seite ist da keine Tür, sondern Wand aus Wurzeln, die sich hebt und senkt.',
+        'Dahinter sitzt trotzdem jemand und schreibt.') },
+    { id: 'badtuer', x: 552, y: 182, b: 100, h: 260, welt: 'beide', name: 'Waschraum',
+      tun: () => wechsle('bad', 150) },
+    { id: 'telefon', x: 702, y: 274, b: 70, h: 54, welt: 'beide', name: 'Stationstelefon',
+      tun: () => telefonAngefasst() },
+    { id: 'akte', x: 676, y: 322, b: 120, h: 120, welt: 'hier', name: 'Tresen',
+      tun: () => {
+        if (S.weiss.akte) return sag('Nell', 'Der Ordner liegt wieder da, wo er lag. Ungefähr.');
+        if (!S.hat.lampeAn) return sag('Nell', 'Ordner, Stifte, ein Stapel Bögen. Zum Lesen ist es zu dunkel.',
+          'Ich bräuchte Licht. Meins, nicht ihres.');
+        S.weiss.akte = true;
+        sag('Nell', '(Der Strahl wandert über den obersten Ordner. Register B. Berger, Nell.)',
+                    'Aufnahmegrund. Datum. Und dann eine Zeile, die ich seit drei Wochen suche:',
+                    '„Geschwister: Jonas B., 6 Jahre — vermisst. Nicht bestätigt verstorben.“',
+                    'Vermisst. Da steht vermisst.',
+                    'Alle hier sagen mir seit drei Wochen, ich soll es akzeptieren. Und im eigenen Ordner steht vermisst.');
+      } },
+    { id: 'grosser', x: 0, y: 0, b: 0, h: 0, welt: 'drueben', name: 'Der Große',
+      beweglich: true, sichtbar: () => S.schatten.klar > 0.35, tun: () => grosserAngesehen() },
+    { id: 'treppe', x: 830, y: 300, b: 130, h: 142, welt: 'beide', name: 'In den Keller',
+      tun: () => wechsle('kueche', 130) },
+    { id: 'schuh', x: 806, y: 410, b: 58, h: 34, welt: 'beide', name: 'Ein Hausschuh',
+      sichtbar: () => !S.schuhGesehen,
+      tun: () => { S.schuhGesehen = true; S.hat.schuh = true;
+        sag('Nell', 'Ein Hausschuh. Blau, Größe achtundzwanzig. Auf der obersten Kellerstufe.',
+                    'Er ist nach unten. Sechs Jahre alt, nachts, allein, in einen Keller.',
+                    'Dann war hier oben etwas, das schlimmer war.',
+                    '(Ich nehme ihn mit. Barfuß geht er mir nirgendwohin.)'); } }
+  ]
+},
+
+/* ---------------------------------------------------------------- 3 Küche */
+kueche: {
+  titel: 'Kapitel vier · Die Teeküche', links: 80, rechts: 880,
+  zeichne(w) {
+    const p = P(), d = w === 'drueben';
+    wand(p, d ? 'rinde' : 'station');
+    /* Treppe hoch */
+    tuschen([0, 442, 0, 254, 138, 340, 138, 442], d ? '#040202' : '#05090A', p.linie, 3, 2.4);
+    for (let i = 0; i < 4; i++) linie(6 + i * 30, 306 + i * 28, 34 + i * 30, 318 + i * 28, p.linie, 2, 2);
+    /* Kühlschrank mit Tiefe */
+    moebelSchatten(244, 76, 14);
+    tuschen([190, 190, 298, 190, 298, 442, 190, 442], d ? '#150B07' : '#28322F', p.linie, 2.8, 1.2);
+    tuschen([190, 190, 206, 178, 206, 430, 190, 442], d ? '#0E0705' : '#1B2422', p.linie, 2.2, 1.2);
+    linie(206, 272, 298, 272, p.linie, 2.4, 1);
+    linie(284, 228, 284, 258, d ? '#D45A28' : '#B8BCB4', 4, .8);
+    linie(284, 288, 284, 322, d ? '#D45A28' : '#B8BCB4', 4, .8);
+    if (!S.hat.zettel) {
+      ctx.save(); ctx.translate(224, 214); ctx.rotate(-0.06);
+      tuschen([0, 0, 52, 0, 52, 38, 0, 38], d ? '#160B08' : '#EFE6CE', p.linie, 1.8, 1);
+      for (let i = 0; i < 3; i++) linie(8, 10 + i * 9, 44, 9 + i * 9, d ? '#D45A28' : '#7A6A58', 1.5, .8);
+      kreis(26, -3, 3.6, p.warm, p.linie, 1.4, .8);
+      ctx.restore();
+    }
+    /* Tisch mit den Spuren von heute Nacht */
+    moebelSchatten(460, 110, 14);
+    tuschen([352, 340, 568, 340, 568, 352, 352, 352], d ? '#150B07' : '#3E3327', p.linie, 2.4, 1.2);
+    linie(366, 352, 372, 442, p.linie, 5, 1.2); linie(554, 352, 548, 442, p.linie, 5, 1.2);
+    if (d) {
+      for (let i = 0; i < 4; i++) {
+        const bx = 392 + i * 34, by = 322 - (i % 2) * 6;
+        tuschen([bx, by, bx + 20, by - 6, bx + 26, by + 4, bx + 6, by + 8], '#0E0705', p.linie, 1.6, 1.2);
+        kreis(bx + 20, by - 2, 1.8, '#D45A28', null, 0, .4);
+      }
+    } else {
+      for (let i = 0; i < 5; i++)
+        tuschen([466 + (i % 2) * 6, 332 - i * 4, 544 + (i % 2) * 6, 330 - i * 4,
+                 544 + (i % 2) * 6, 340 - i * 4, 466 + (i % 2) * 6, 342 - i * 4],
+                i < 2 ? '#8C3A32' : '#D8CDB6', p.linie, 1.5, 1);
+      for (let i = 0; i < 2; i++) {
+        const bx = 376 + i * 34;
+        tuschen([bx, 314, bx + 24, 314, bx + 20, 340, bx + 4, 340], '#E4DCC8', p.linie, 1.8, 1);
+        linie(bx + 2, 320, bx + 22, 319, '#B85A6A', 3, .8);
+      }
+      linie(438, 336, 456, 328, '#B8BCB4', 3, .8);
+      kreis(452, 326, 3.4, '#B8BCB4', p.linie, 1.2, .6);
+      ctx.save(); ctx.globalAlpha = .7;
+      for (let i = 0; i < 7; i++) kreis(370 + i * 11, 336 + (i % 3), 1.4, '#9A8A6A', null, 0, .4);
+      ctx.restore();
+    }
+    /* Kalender */
+    const kx = 620, ky = 148;
+    tuschen([kx, ky, kx + 96, ky, kx + 96, ky + 84, kx, ky + 84], d ? '#150B08' : '#E4DAC4', p.linie, 2.2, 1);
+    linie(kx, ky + 20, kx + 96, ky + 19, p.linie, 1.8, .8);
+    for (let r = 0; r < 3; r++) for (let s = 0; s < 5; s++) {
+      const cx = kx + 14 + s * 18, cy = ky + 34 + r * 18;
+      if (r * 5 + s < 11) { linie(cx - 5, cy - 5, cx + 5, cy + 5, d ? '#D45A28' : '#8C3A32', 1.6, .7);
+                            linie(cx + 5, cy - 5, cx - 5, cy + 5, d ? '#D45A28' : '#8C3A32', 1.6, .7); }
+      else kreis(cx, cy, 1.6, p.linie, null, 0, .4);
+    }
+    /* Arbeitsplatte mit Spüle, Wasserkocher, Hängeschrank */
+    moebelSchatten(810, 110, 14);
+    tuschen([736, 330, 900, 330, 900, 442, 736, 442], d ? '#150B07' : '#2A342F', p.linie, 2.6, 1.2);
+    tuschen([730, 318, 906, 318, 906, 332, 730, 332], d ? '#241309' : '#46524A', p.linie, 2.4, 1);
+    tuschen([754, 332, 826, 332, 822, 352, 758, 352], d ? '#0E0705' : '#1E2A26', p.linie, 2, 1);
+    linie(790, 306, 790, 322, p.linie, 3.4, .8);
+    ctx.beginPath(); ctx.moveTo(790, 308); ctx.quadraticCurveTo(806, 304, 808, 320);
+    ctx.strokeStyle = p.linie; ctx.lineWidth = 3; ctx.stroke();
+    tuschen([848, 286, 884, 286, 880, 318, 852, 318], d ? '#1B0F09' : '#4A5450', p.linie, 2.2, 1);
+    linie(880, 292, 892, 300, p.linie, 3, .8);
+    for (let i = 0; i < 2; i++) {
+      kasten(750 + i * 62, 356, 56, 40, null, p.linie, 2, 1);
+      linie(766 + i * 62, 376, 794 + i * 62, 376, d ? '#D45A28' : '#B8BCB4', 3, .8);
+    }
+    tuschen([740, 158, 900, 158, 900, 250, 740, 250], d ? '#150B07' : '#28322F', p.linie, 2.6, 1.2);
+    linie(820, 158, 820, 250, p.linie, 2.2, 1);
+    for (let i = 0; i < 3; i++) kreis(756 + i * 22, 268, 7, d ? '#1B0F09' : '#4A5450', p.linie, 1.6, .8);
+    /* Kellertür mit Stufen */
+    tuerZeichnen(540, 172, 120, 270, p, d, true, null);
+    ctx.fillStyle = d ? '#040202' : '#04080A'; ctx.fillRect(548, 182, 104, 260);
+    for (let i = 0; i < 4; i++) {
+      ctx.save(); ctx.globalAlpha = .5 - i * .1;
+      linie(552, 356 + i * 22, 648, 368 + i * 22, d ? '#5A2A18' : '#48605E', 3, 1.2);
+      ctx.restore();
+    }
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    const kg = ctx.createLinearGradient(600, 442, 600, 300);
+    kg.addColorStop(0, d ? 'rgba(212,90,40,.2)' : 'rgba(130,175,195,.16)');
+    kg.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = kg; ctx.fillRect(548, 182, 104, 260); ctx.restore();
+    if (S.hat.lampeAn) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      kreis(600, 330, 60, 'rgba(240,200,130,.12)', null, 0, 1); ctx.restore(); }
+    if (!d) { raumLicht(300, 140, 'rgba(226,214,170,.22)', .22, 540); eckenAbdunkeln(430, 260, 720); }
+    else { raumLicht(430, 280, 'rgba(212,90,40,.10)', .1, 420); eckenAbdunkeln(430, 280, 620); }
+  },
+  dinge: [
+    { id: 'hoch', x: 0, y: 254, b: 138, h: 188, welt: 'beide', name: 'Nach oben',
+      tun: () => wechsle('flur', 840) },
+    { id: 'krumen', x: 360, y: 296, b: 90, h: 58, welt: 'hier', name: 'Tischplatte',
+      tun: () => {
+        if (S.weiss.krumen) return sag('Nell', 'Zwei leere Becher, ein Löffel. Ich stelle nichts weg.');
+        S.weiss.krumen = true;
+        sag('Nell', 'Auf dem Tisch stehen zwei aufgerissene Joghurtbecher. Beide leer, beide noch feucht.',
+                    'Daneben Krümel und ein Löffel, der nicht abgespült ist.',
+                    'Geister essen keinen Erdbeerjoghurt.',
+                    'Wer auch immer heute Nacht durch dieses Haus läuft — er hat Hunger und er ist echt.');
+      } },
+    { id: 'kuehlschrank', x: 190, y: 190, b: 108, h: 252, welt: 'beide', name: 'Kühlschrank',
+      tun: () => sag('Nell', S.welt === 'hier'
+        ? 'Stationskühlschrank. Joghurts mit Namen drauf, meiner steht ganz hinten.'
+        : 'Auf der anderen Seite ist der Kühlschrank hohl wie ein Stamm, und innen bewegt sich etwas.') },
+    { id: 'briefe', x: 380, y: 300, b: 160, h: 54, welt: 'beide', name: 'Briefe',
+      tun: () => sag('Nell', S.welt === 'hier'
+        ? 'Übergabebögen. Auf dem obersten steht mein Name und daneben ein Wort, das ich nicht lesen soll.'
+        : 'Auf der anderen Seite sind die Bögen Vögel. Sie halten still, damit ich sie nicht sehe.') },
+    { id: 'kalender', x: 620, y: 148, b: 96, h: 84, welt: 'beide', name: 'Kalender',
+      tun: () => sag('Nell', 'Dienstplan und Belegung. Drei Wochen durchgestrichen, das sind meine.',
+        'Und dann Freitag, in der Spalte für Termine, in fremder Handschrift:',
+        '„14:00 Berger — Gespräch mit dem Vater. Anwesenheit der Patientin erwünscht.“',
+        'Erwünscht. Nicht nötig, nicht verpflichtend. Erwünscht.',
+        'Als hätte irgendwer gefragt, ob ich das will.') },
+    { id: 'schublade', x: 750, y: 322, b: 120, h: 120, welt: 'beide', name: 'Schublade',
+      tun: () => {
+        if (S.hat.batterien) return sag('Nell', 'Gummis, Kabelbinder, eine Kerze ohne Halter.');
+        sag('Nell', 'Gummis, Kabelbinder, ein Schlüssel ohne Schloss. Keine Batterien.',
+                    'Die liegen im Waschraum im Spiegelschrank, da kommt hier alles hin.');
+      } },
+    { id: 'zettel', x: 244, y: 214, b: 66, h: 54, welt: 'beide', name: 'Zettel',
+      sichtbar: () => !S.hat.zettel,
+      tun: () => {
+        if (S.welt === 'drueben') return sag('Nell', 'Auf der anderen Seite stehen da keine Zahlen, sondern lauter kleine Augen.');
+        S.hat.zettel = true;
+        sag('Nell', 'Die Nachtdienstliste am Kühlschrank. Kessner, und dahinter die Hausnummer 214.',
+                    'Ich kann sie auswendig. Ich nehme sie trotzdem mit.',
+                    'Falls mir nachher der Kopf ausgeht.');
+      } },
+    { id: 'kellertuer', x: 540, y: 172, b: 120, h: 270, welt: 'beide', name: 'Kellertür',
+      tun: () => {
+        if (!S.hat.lampeAn) return sag('Nell', 'Die Kellertür steht einen Spalt offen. Die steht nie offen.',
+          'Unten sind Technik, Wäsche und kein einziges Licht, das nachts an ist.',
+          'Ohne Lampe gehe ich da nicht rein.');
+        wechsle('keller', 130);
+      } }
+  ]
+},
+
+/* ---------------------------------------------------------------- 3b Bad */
+bad: {
+  titel: 'Kapitel drei · Der Waschraum', links: 90, rechts: 870,
+  zeichne(w) {
+    const p = P(), d = w === 'drueben';
+    wand(p, d ? 'rinde' : 'kachel');
+    tuerZeichnen(40, 186, 104, 256, p, d, false, 'da');
+    /* Deckenlampe an der Schnur */
+    linie(492, 0, 492, 58, p.linie, 3, 1.4);
+    tuschen([472, 58, 512, 58, 506, 84, 478, 84], S.badLicht ? 'rgba(255,238,196,.95)' : p.wand2, p.linie, 2.2, 1.2);
+    if (d) {
+      ctx.beginPath(); ctx.moveTo(492, 84);
+      ctx.quadraticCurveTo(506, 140, 492 + Math.sin(zeit * .8) * 5, 196);
+      ctx.strokeStyle = p.linie; ctx.lineWidth = 7; ctx.stroke();
+      for (let i = 0; i < 4; i++) linie(492, 118 + i * 22, 474 + (i % 2) * 36, 130 + i * 22, p.linie, 3, 2);
+      if (!S.badLicht) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        kreis(492, 196, 16, 'rgba(212,90,40,.34)', null, 0, 1); ctx.restore(); }
+    } else {
+      linie(492, 84, 492 + Math.sin(zeit * .7) * 2, 176, p.linie, 1.5, 1);
+      kasten(488, 176, 8, 12, p.wand2, p.linie, 1.6, .8);
+    }
+    /* Badewanne, eckig mit Füßen */
+    moebelSchatten(300, 130, 16);
+    tuschen([192, 336, 418, 336, 412, 424, 198, 424], d ? '#1B0F09' : '#2A3A40', p.linie, 2.6, 1.4);
+    tuschen([188, 328, 422, 328, 422, 344, 188, 344], d ? '#241309' : '#374B52', p.linie, 2.4, 1.2);
+    ctx.save(); ctx.globalAlpha = .5;
+    tuschen([206, 346, 404, 346, 398, 372, 212, 372], d ? '#0E0705' : '#1C282E', null, 0, 1.2);
+    ctx.restore();
+    for (const fx of [212, 396])
+      tuschen([fx - 7, 424, fx + 7, 424, fx + 5, 442, fx - 5, 442], d ? '#160B06' : '#223034', p.linie, 2, 1);
+    linie(214, 300, 214, 320, p.linie, 4, .8);
+    ctx.beginPath(); ctx.moveTo(214, 302); ctx.quadraticCurveTo(240, 296, 244, 320);
+    ctx.strokeStyle = p.linie; ctx.lineWidth = 4; ctx.stroke();
+    if (!d) { ctx.save(); ctx.globalAlpha = .65;
+      const t = (zeit * 0.8) % 1;
+      kreis(244, 324 + t * 26, 2.2 + t * 1.4, '#9FC7E8', null, 0, .3); ctx.restore(); }
+    /* Waschbecken mit Säule */
+    moebelSchatten(594, 74, 14);
+    tuschen([584, 372, 606, 372, 612, 442, 578, 442], d ? '#1B0F09' : '#2E3E44', p.linie, 2.2, 1.2);
+    tuschen([524, 336, 664, 336, 648, 376, 540, 376], d ? '#241309' : '#3A4E56', p.linie, 2.6, 1.3);
+    ctx.save(); ctx.globalAlpha = .55;
+    tuschen([538, 342, 650, 342, 638, 366, 550, 366], d ? '#0E0705' : '#1E2C32', null, 0, 1.2);
+    ctx.restore();
+    linie(594, 316, 594, 336, p.linie, 4, .8);
+    ctx.beginPath(); ctx.moveTo(594, 318); ctx.quadraticCurveTo(614, 314, 616, 334);
+    ctx.strokeStyle = p.linie; ctx.lineWidth = 3.4; ctx.stroke();
+    /* Spiegelschrank */
+    if (d) {
+      tuschen([528, 300, 662, 296, 664, 178, 526, 182], '#050202', p.linie, 2.6, 2.6);
+      if (!S.hat.batterien) { ctx.save(); ctx.globalCompositeOperation = 'lighter';
+        kreis(594, 238, 20, 'rgba(212,90,40,.3)', null, 0, 1); ctx.restore(); }
+    } else {
+      kasten(524, 176, 140, 126, p.wand2, p.linie, 2.6, 1.2);
+      const sp = ctx.createLinearGradient(530, 182, 658, 296);
+      sp.addColorStop(0, S.badLicht ? '#4E6472' : '#131A20');
+      sp.addColorStop(1, S.badLicht ? '#26343E' : '#0C1218');
+      ctx.fillStyle = sp; ctx.fillRect(532, 184, 124, 110);
+      kasten(532, 184, 124, 110, null, p.linie, 1.8, 1);
+      linie(594, 184, 594, 294, p.linie, 2, .8);
+      linie(536, 300, 652, 300, p.linie, 3, 1);
+    }
+    /* Ablage mit Zahnputzbecher */
+    linie(676, 372, 736, 372, p.linie, 4, 1);
+    tuschen([686, 334, 722, 334, 718, 370, 690, 370], d ? '#1B0F09' : '#8E8AA0', p.linie, 2, 1);
+    for (let i = 0; i < 3; i++)
+      linie(694 + i * 9, 336, 692 + i * 10, 306 + (i === 2 ? 8 : 0),
+            i === 2 ? (d ? '#D45A28' : '#6E6A7C') : (d ? '#7A3018' : (i ? '#B85A5A' : '#5A8AB8')), 3.6, .8);
+    /* Handtücher */
+    linie(748, 206, 886, 204, p.linie, 4, 1);
+    for (let i = 0; i < 2; i++) {
+      const x = 758 + i * 66;
+      tuschen([x, 206, x + 52, 206, x + 48, 320, x + 4, 322], d ? '#1B0F09' : (i ? '#3E5058' : '#4A4258'), p.linie, 2.2, 1.2);
+      ctx.save(); ctx.globalAlpha = .4;
+      for (let k = 1; k < 4; k++) linie(x + k * 13, 208, x + k * 13 - 2, 318, p.linie, 1.6, 1);
+      ctx.restore();
+    }
+    /* Bodenablauf */
+    kreis(470, 486, 13, d ? '#0E0705' : '#1A2428', p.linie, 2, 1);
+    for (let i = 0; i < 3; i++) linie(460, 481 + i * 5, 480, 481 + i * 5, p.linie, 1.4, .6);
+    if (!d) {
+      if (S.badLicht) { raumLicht(492, 76, 'rgba(236,226,190,.32)', .32, 560); eckenAbdunkeln(492, 240, 720); }
+      else dunkelheit(0.9, 92, 380);
+    } else { raumLicht(492, 200, 'rgba(212,90,40,.10)', .1, 420); eckenAbdunkeln(492, 260, 620); }
+  },
+  dinge: [
+    { id: 'zurueck', x: 40, y: 186, b: 104, h: 256, welt: 'beide', name: 'Zurück in den Flur',
+      tun: () => wechsle('flur', 730) },
+    { id: 'wanne', x: 188, y: 334, b: 230, h: 108, welt: 'beide', name: 'Badewanne',
+      tun: () => sag('Nell', S.welt === 'hier'
+        ? 'Der Hahn tropft, seit ich denken kann. Jonas badet nur, wenn ich dabeisitze.'
+        : 'Drüben ist die Wanne bis oben voll und ganz still. Ich fasse da nicht rein.') },
+    { id: 'becher', x: 682, y: 310, b: 44, h: 60, welt: 'hier', name: 'Zahnputzbecher',
+      tun: () => sag('Nell', 'Drei Bürsten. Meine ist nass, Jonas\u2019 ist nass.',
+                             'Die dritte ist trocken. Sie ist seit Wochen trocken, und ich stelle sie trotzdem jeden Abend zurück.') },
+    { id: 'schnur', x: 470, y: 150, b: 46, h: 60, welt: 'hier', name: 'Lichtschnur',
+      tun: () => {
+        if (S.badLicht) return sag('Nell', 'Das Licht brummt jetzt. Es hat nie anders geklungen.');
+        sag('Nell', '(Klick. Klick.)', 'Nichts. Die Schnur hängt nur noch dran, sie zieht nichts mehr.',
+                    'Vielleicht hängt sie drüben an etwas, das noch hält.');
+      } },
+    { id: 'wurzel', x: 466, y: 110, b: 56, h: 106, welt: 'drueben', name: 'Wurzel',
+      tun: () => {
+        if (S.badLicht) return sag('Nell', 'Die Wurzel hängt schlaff. Sie hat getan, was sie konnte.');
+        S.badLicht = true;
+        sag('Nell', 'Drüben ist die Schnur eine Wurzel, dick wie mein Handgelenk.',
+                    'Ich hänge mich mit meinem ganzen Gewicht dran.',
+                    '(Irgendwo im Haus macht es klack.)',
+                    'Als ich die Augen aufmache, brummt im Bad das Licht.');
+      } },
+    { id: 'spiegel', x: 520, y: 172, b: 148, h: 134, welt: 'hier', name: 'Spiegelschrank',
+      tun: () => {
+        if (!S.badLicht) return sag('Nell', 'Im Dunkeln sehe ich nur mich, und das reicht mir gerade nicht.');
+        if (S.hat.batterien) return sag('Nell', 'Pflaster, Nagelschere, ein leeres Fach.');
+        S.hat.batterien = true;
+        if (S.hat.lampe) { S.hat.lampeAn = true;
+          sag('Nell', 'Zwei Batterien im obersten Fach, wo sie immer liegen.',
+                      '(Klack.)',
+                      'Der Strahl schneidet quer durchs Bad und macht alles, was er trifft, wieder normal.'); }
+        else sag('Nell', 'Zwei Batterien im obersten Fach. Ich stecke sie ein.',
+                         'Jetzt brauche ich nur noch etwas, wo sie reingehören.');
+      } },
+    { id: 'loch', x: 520, y: 172, b: 148, h: 134, welt: 'drueben', name: 'Loch in der Wand',
+      tun: () => sag('Nell', 'Drüben ist der Spiegel kein Spiegel, sondern ein Loch.',
+        'Da drin steht jemand, der aussieht wie ich, nur müder und ein Stück größer.',
+        'Sie macht dasselbe wie ich, nur ein bisschen später. Ich gucke nicht lange hin.') },
+    { id: 'handtuecher', x: 752, y: 200, b: 130, h: 126, welt: 'beide', name: 'Handtücher',
+      tun: () => sag('Nell', 'Zwei hängen ordentlich. Ich hänge sie jeden Freitag um.') }
+  ]
+},
+
+/* ---------------------------------------------------------------- 4 Keller */
+keller: {
+  titel: 'Kapitel fünf · Unter der Kellertreppe', links: 80, rechts: 870,
+  zeichne(w) {
+    const p = P(), d = w === 'drueben';
+    wand(p, d ? 'rinde' : 'stein');
+    tuschen([0, 442, 0, 236, 150, 330, 150, 442], d ? '#040906' : '#07060B', p.linie, 3, 2.4);
+    for (let i = 0; i < 5; i++) linie(6 + i * 28, 288 + i * 26, 30 + i * 28, 300 + i * 26, p.linie, 2, 2);
+    /* Nische unter der Treppe */
+    tuschen([150, 442, 150, 330, 268, 388, 268, 442], '#05070C', p.linie, 2.6, 2.4);
+    /* Regale und Kisten */
+    kasten(330, 300, 120, 142, p.wand2, p.linie, 2.6, 2);
+    linie(330, 348, 450, 346, p.linie, 1.8, 1.6);
+    linie(330, 396, 450, 394, p.linie, 1.8, 1.6);
+    kasten(520, 356, 92, 86, p.wand2, p.linie, 2.4, 2);
+    kasten(536, 306, 62, 50, p.wand2, p.linie, 2.2, 2);
+    /* Waschmaschine */
+    kasten(680, 320, 108, 122, p.wand2, p.linie, 2.6, 2);
+    kreis(734, 380, 30, d ? '#0A140E' : '#191428', p.linie, 2.4, 1.6);
+    if (d) {
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath(); ctx.moveTo(130 + i * 170, 0);
+        ctx.quadraticCurveTo(170 + i * 170, 90, 110 + i * 170 + Math.sin(zeit * .4 + i) * 7, 200);
+        ctx.strokeStyle = p.linie; ctx.lineWidth = 6; ctx.stroke();
+      }
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < 6; i++) kreis(210 + i * 110, 432 + (i % 3) * 5, 6, 'rgba(156,224,168,.3)', null, 0, 1);
+      ctx.restore();
+    }
+    if (d && S.schatten.klar > 0.01) schattenZeichnen(S.schatten.x, 442, 1.5, S.schatten.klar);
+    dunkelheit(S.hat.lampeAn ? 0.80 : 0.95, 70, 380);
+    /* Drüben steht hier die Haustür von zu Hause, offen, und dahinter ist es warm */
+    if (d) {
+      tuerZeichnen(700, 140, 100, 190, p, d, true, null);
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const g = ctx.createRadialGradient(750, 250, 0, 750, 250, 300);
+      g.addColorStop(0, 'rgba(228,124,52,' + (0.26 + 0.07 * Math.sin(zeit * 2)) + ')');
+      g.addColorStop(1, 'rgba(228,124,52,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, VB, VH); ctx.restore();
+      for (let i = 0; i < 5; i++) {
+        const fx = 706 + i * 20, t2 = (zeit * .5 + i * .2) % 1;
+        kreis(fx + Math.sin(zeit + i) * 8, 320 - t2 * 190, 2.2 + t2 * 2,
+              'rgba(240,150,70,' + (0.5 * (1 - t2)) + ')', null, 0, .5);
+      }
+    }
+  },
+  dinge: [
+    { id: 'hoch', x: 0, y: 236, b: 150, h: 206, welt: 'beide', name: 'Nach oben',
+      tun: () => wechsle('kueche', 600) },
+    { id: 'regal', x: 330, y: 300, b: 120, h: 142, welt: 'beide', name: 'Regal',
+      tun: () => sag('Nell', 'Einweckgläser. Etwas Rotes von vorletztem Jahr.') },
+    { id: 'waschmaschine', x: 680, y: 320, b: 108, h: 122, welt: 'beide', name: 'Waschmaschine',
+      tun: () => sag('Nell', 'Voll und feucht. Die Wäsche liegt seit vier Tagen drin.',
+                             'Morgen. Ich hänge sie morgen auf.') },
+    { id: 'nische', x: 150, y: 320, b: 130, h: 122, welt: 'beide', name: 'Hinter der Waschtrommel',
+      tun: () => nischeAngesehen() },
+    { id: 'haustuer', x: 700, y: 140, b: 100, h: 180, welt: 'drueben', name: 'Eine offene Haustür',
+      tun: () => inDieBrandnacht() },
+    { id: 'grosser', x: 0, y: 0, b: 0, h: 0, welt: 'drueben', name: 'Der Große',
+      beweglich: true, sichtbar: () => S.schatten.klar > 0.35, tun: () => grosserAngesehen() }
+  ]
+},
+
+/* ---------------------------------------------------------------- 5 Garten */
+garten: {
+  titel: 'Kapitel sechs · Vier Uhr zwölf', links: 90, rechts: 900,
+  zeichne(w) {
+    const p = P(), d = w === 'drueben';
+    const t = klemm(S.morgen, 0, 1);
+    const himmel = ctx.createLinearGradient(0, 0, 0, BODEN);
+    himmel.addColorStop(0, misch(0, 1, t) > .3 ? '#3A4670' : '#161E32');
+    himmel.addColorStop(.6, t > .3 ? '#8A7796' : '#1E2740');
+    himmel.addColorStop(1, t > .2 ? '#E9A277' : '#28304A');
+    ctx.fillStyle = himmel; ctx.fillRect(0, 0, VB, BODEN);
+    if (t > .25) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const sy = BODEN - (t - .25) * 130;
+      kreis(700, sy, 30 + t * 12, 'rgba(255,214,150,.5)', null, 0, 1);
+      const g = ctx.createRadialGradient(700, sy, 0, 700, sy, 300);
+      g.addColorStop(0, 'rgba(255,200,130,.28)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, VB, BODEN); ctx.restore();
+    }
+    tuschen([-20, BODEN, -20, 356, 200, 320, 460, 352, 720, 316, 980, 348, 980, BODEN], '#1A2434', p.linie, 2.4, 3.5);
+    ctx.fillStyle = p.boden; ctx.fillRect(0, BODEN, VB, VH - BODEN);
+    for (let i = 0; i < 8; i++) {
+      const x = 260 + i * 86;
+      tuschen([x, 442, x, 344, x + 7, 334, x + 14, 344, x + 14, 442], '#241D33', p.linie, 2, 2);
+    }
+    linie(240, 368, VB, 362, '#241D33', 5, 2.4);
+    /* Haus links mit erleuchtetem Fenster */
+    tuschen([0, 442, 0, 120, 190, 120, 190, 442], '#16121F', p.linie, 3, 2.6);
+    kasten(40, 180, 74, 62, S.mamaFenster ? 'rgba(240,200,120,.75)' : '#0E0B16', p.linie, 2.4, 1.6);
+    linie(77, 180, 77, 242, p.linie, 2, 1.4);
+    tuerZeichnen(120, 250, 62, 192, P(), false, true, null);
+    /* Scheinwerfer von Rikes Auto */
+    if (S.auto > 0) {
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      const a = klemm(S.auto, 0, 1);
+      const g = ctx.createRadialGradient(150, 330, 0, 150, 330, 480);
+      g.addColorStop(0, 'rgba(255,240,210,' + (0.5 * a) + ')');
+      g.addColorStop(1, 'rgba(255,240,210,0)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, VB, VH);
+      ctx.restore();
+    }
+    for (let i = 0; i < 60; i++) {
+      const gx = (i * 149) % VB, gy = 448 + (i % 4) * 16;
+      linie(gx, gy, gx + Math.sin(zeit + gx * .02) * 3, gy - 12 - (i % 3) * 4, '#2C3A38', 1.6, .8);
+    }
+  },
+  dinge: [
+    { id: 'warten', x: 300, y: 300, b: 400, h: 190, welt: 'beide', name: 'Warten',
+      tun: () => sag('Nell', 'Wir warten im Innenhof. Jonas hat meine Jacke an, sie ist ihm zu groß.',
+                             'Das Gras ist nass und es ist mir vollkommen egal.') }
+  ]
+}
+};
+
+/* ==========================================================================
+   Zustand, Geschichte, Ablauf
+   ========================================================================== */
+let S = null;
+const GESCHW = 138;
+function neu() {
+  S = {
+    szene: 'zimmer', welt: 'hier',
+    nell: { x: 300, blick: 1, ziel: null, ph: 0, geht: false },
+    russ: { x: 210, blick: 1, ph: 0, geht: false },
+    jonas: { x: -200, blick: 1, ph: 0, geht: false },
+    hat: { klinke: false, lampe: false, batterien: false, lampeAn: false,
+           decke: false, schuh: false, zettel: false },
+    tuerAuf: false, schuhGesehen: false, klopf: 0, badLicht: false,
+    /* was Nell herausgefunden hat — entscheidet über das Ende */
+    weiss: { akte: false, mira: 0, brandnacht: false, krumen: false, brief: false },
+    jonasGefunden: false, jonasDabei: false, wahrheit: false, grosserGesehen: false,
+    telefonAktiv: false, mut: 0, halten: false, telefonVersuche: 0,
+    drubenZeit: 0, augenZu: 0, uebergang: null, karte: null, gesehen: {},
+    schatten: { aktiv: false, x: 940, klar: 0, gesehen: false },
+    unheim: 14, huschen: null, flackern: 0,
+    morgen: 0, auto: 0, mamaFenster: false, ende: false, endeArt: null, abgeschlossen: false,
+    text: null, schlange: [], nachAktion: null
+  };
+}
+const szene = () => SZENEN[S.szene];
+const erkenntnisse = () => (S.weiss.akte ? 1 : 0) + (S.weiss.mira >= 3 ? 1 : 0) +
+                           (S.weiss.brandnacht ? 1 : 0) + (S.weiss.krumen ? 1 : 0);
+
+/* ---------- Der Brief im Nachtschrank ---------- */
+function briefAngefasst() {
+  if (S.weiss.brief) {
+    return sag('Nell', 'Drei Zeilen, mehr steht nicht drin. Ich habe sie trotzdem viermal gelesen.');
+  }
+  if (!S.briefGesehen) {
+    S.briefGesehen = true;
+    return sag('Nell', 'Ganz unten im Nachtschrank liegt ein Umschlag. Seit Dienstag.',
+                       'Seine Schrift. Schräg nach rechts, sehr ordentlich, Druck bis aufs Papier.',
+                       'Ich habe ihn nicht aufgemacht. Ich weiß auch nicht, warum ich ihn nicht weggeworfen habe.');
+  }
+  frage('Nell', 'Der Umschlag liegt immer noch da.', [
+    { text: 'Liegen lassen', dann: () => sag('Nell', 'Nicht heute Nacht. Vielleicht nie.',
+        'Ich schiebe die Socken wieder drüber, bis nichts mehr zu sehen ist.') },
+    { text: 'Aufmachen', dann: () => {
+        S.weiss.brief = true;
+        sag('Nell', '(Der Umschlag ist nicht zugeklebt. Er war sich sicher, dass ich ihn aufmache.)',
+                    '„Ich weiß, dass Du das nicht lesen willst.“',
+                    '„Freitag komme ich. Sie haben mir gesagt, dass Du da sein musst.“',
+                    '„Ich hab Dir was mitgebracht.“',
+                    'Er hat immer etwas mitgebracht. Am nächsten Tag, wenn etwas passiert war.',
+                    'Er hat es hingestellt und nichts gesagt, und dann war es angeblich erledigt.',
+                    'Ich lege den Brief in meine Tasche. Ich weiß nicht, warum.');
+      } }
+  ]);
+}
+
+/* ---------- Reden ---------- */
+const elText = document.getElementById('textfeld');
+const elSpr = document.getElementById('sprecher');
+const elSatz = document.getElementById('satz');
+const elWahl = document.getElementById('wahl');
+function sag(sprecher) {
+  for (let i = 1; i < arguments.length; i++) S.schlange.push({ s: sprecher, z: arguments[i] });
+  if (!S.text) naechsterSatz();
+}
+function frage(sprecher, zeile, optionen) {
+  S.schlange.push({ s: sprecher, z: zeile, opt: optionen });
+  if (!S.text) naechsterSatz();
+}
+function naechsterSatz() {
+  const n = S.schlange.shift();
+  elWahl.innerHTML = '';
+  if (!n) { S.text = null; elText.classList.remove('an'); return; }
+  S.text = { s: n.s, voll: n.z, zeichen: 0, opt: n.opt || null };
+  elSpr.textContent = n.s; elSatz.textContent = '';
+  elText.classList.add('an');
+}
+function wahlZeigen() {
+  elWahl.innerHTML = '';
+  S.text.opt.forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'wahlknopf'; b.textContent = o.text;
+    b.onclick = ev => { ev.stopPropagation(); const f = o.dann; S.text = null; elWahl.innerHTML = '';
+      elText.classList.remove('an'); if (f) f(); if (!S.text) naechsterSatz(); };
+    elWahl.appendChild(b);
+  });
+  S.text.gezeigt = true;
+}
+function textWeiter() {
+  if (!S.text) return;
+  if (S.text.zeichen < S.text.voll.length) {
+    S.text.zeichen = S.text.voll.length;
+    elSatz.textContent = S.text.voll;
+    return;
+  }
+  if (S.text.opt) return;
+  naechsterSatz();
+}
+
+/* ---------- Räume ---------- */
+function wechsle(ziel, x) { S.uebergang = { ziel: ziel, x: x, t: 0 }; }
+function kapitelKarte(t) { S.karte = { t: t, zeit: 0 }; }
+
+/* ---------- Hinsehen ---------- */
+function knopfBeschriften() {
+  const k = document.getElementById('augen');
+  if (!S || S.telefonAktiv) return;
+  k.innerHTML = S.welt === 'drueben' ? 'weg<br>sehen' : 'hin<br>sehen';
+  k.classList.toggle('zu', S.welt === 'drueben');
+}
+function augenUm() {
+  if (!S || S.uebergang || S.augenZu > 0 || S.ende || S.telefonAktiv) return;
+  S.augenZu = 0.62;
+  const lauf = S;
+  setTimeout(() => {
+    if (!S || S !== lauf) return;
+    S.welt = S.welt === 'hier' ? 'drueben' : 'hier';
+    if (S.welt === 'hier') { S.drubenZeit = 0; S.schatten.aktiv = false; S.schatten.klar = 0; S.schatten.x = 940; }
+    knopfBeschriften();
+  }, 310);
+}
+
+/* ---------- Ruß ---------- */
+function russTun() {
+  if (S.welt === 'hier') return sag('Ruß', '(Sie schnurrt und drückt den Kopf gegen deine Hand.)');
+  const h = {
+    zimmer: S.hat.klinke ? '„Die Tür wartet. Türen sind geduldig, Stationen nicht.“'
+                         : '„Der Stumpf da hat ein Loch. Hatte er immer, du hast nur nie reingefasst.“',
+    flur: S.schuhGesehen ? '„Nach unten. Da ist es kalt, und da ist noch was.“'
+                         : (S.hat.decke ? '„Ein Schuh liegt oben auf der Kellertreppe. Zähl mal, wie viele Füße er hat.“'
+                                        : '„Da liegt eine Decke im Gang. Warm ist sie noch.“'),
+    bad: S.badLicht ? '„Sieh nicht zu lange ins Loch, Nell. Die da drin ist die aus der Brandnacht.“'
+                    : '„Die Schnur hängt auf meiner Seite an einer Wurzel. Wurzeln halten was aus.“',
+    kueche: S.weiss.krumen ? '„Ein Kind, das isst, ist ein Kind, das lebt. Denk mal drüber nach.“'
+                           : '„Riech mal. Hier war heute Nacht schon jemand.“',
+    keller: S.jonasGefunden ? '„Er ist nicht der, für den du ihn hältst. Er friert trotzdem.“'
+                            : '„Hinter dem Vorhängeschloss. Da atmet jemand.“',
+    garten: '„Es wird hell. Das machen Nächte so, auch die.“'
+  };
+  sag('Ruß', h[S.szene] || '„Mhm.“');
+}
+
+/* ---------- Die Großen ---------- */
+function grosserAngesehen() {
+  S.schatten.klar = 0; S.schatten.aktiv = false; S.schatten.x = 940;
+  S.drubenZeit = 0; S.schatten.gesehen = true;
+  if (!S.grosserGesehen) {
+    S.grosserGesehen = true;
+    return frage('Der Große', '„Du kennst mich. Du hast mich in dieser Nacht gesehen.“', [
+      { text: 'Wegsehen', dann: () => sag('Nell', 'Ich drehe mich weg. Er wird nicht kleiner, aber ich gehe weiter.',
+          'Hinter mir knackt es zweimal, als würde jemand Gewicht verlagern.') },
+      { text: '„Was hast du getan?“', dann: () => frage('Der Große', '„Ich habe dich gehalten.“', [
+          { text: '„Du hast mich nicht reingelassen.“', dann: () => {
+              S.weiss.brandnacht = true; S.wahrheit = true;
+              sag('Nell', 'Ich weiß es wieder. Ich stand in der Haustür und wollte zurück ins Haus.',
+                          'Zwei Arme haben mich festgehalten, bis ich aufgehört habe zu treten.',
+                          'Die Großen waren keine Monster. Die Großen waren Leute, die mich festgehalten haben.',
+                          'Und weil sie mich gehalten haben, bin ich draußen geblieben. Und Jonas nicht.');
+            } },
+          { text: 'Nichts sagen', dann: () => sag('Nell', 'Ich kriege den Mund nicht auf. Er wartet. Er kann sehr gut warten.') }
+        ]) }
+    ]);
+  }
+  if (S.weiss.brandnacht && S.weiss.brief && !S.zweiterGrosser) {
+    S.zweiterGrosser = true;
+    return sag('Nell', 'Und dann fällt mir auf, dass sie nicht alle gleich sind.',
+                       'Die meisten stehen im Flur. Einer stand immer im Türrahmen.',
+                       'Der hat nie etwas gemacht, solange man ihn ansehen konnte. Man hat ihn vorher gehört.',
+                       'An den Schlüsseln. Am Tempo auf der Treppe. Daran, ob er die Tür zumacht oder offen lässt.',
+                       'Ich habe mit sechs schon an Schritten erkannt, wie der Abend wird. Das war kein Monster. Das war mein Vater.',
+                       'Und die anderen, die im Flur stehen — die habe ich mir dazugebaut, weil einer allein zu wenig war für so viel Angst.');
+  }
+  sag('Nell', S.weiss.brandnacht ? 'Er steht nur noch da. Ein Mensch mit Armen, weiter nichts.'
+                                 : 'Er wartet immer noch darauf, dass ich frage.');
+}
+
+/* ---------- Das Kind im Keller ---------- */
+function nischeAngesehen() {
+  if (S.jonasDabei) return sag('Nell', 'Die Lücke hinter der Waschtrommel. Da passt genau ein Sechsjähriger rein.');
+  if (!S.jonasGefunden) {
+    S.jonasGefunden = true; S.jonas.x = 214; S.jonas.blick = 1;
+    sag('Nell', 'Hinter der Trommel, zwischen Rohr und Wand, ist eine Lücke. Und in der Lücke ist ein Fuß ohne Schuh.',
+                'Jonas?');
+    sag('Der Junge', '„Ich heiß nicht so.“');
+    sag('Nell', 'Er ist sechs, vielleicht sieben. Er ist eiskalt, seine Lippen sind blau.',
+                'Er ist nicht Jonas. Er hat nie ausgesehen wie Jonas.',
+                'Ich habe drei Wochen lang jeden kleinen Jungen für meinen Bruder gehalten.');
+    sag('Der Junge', '„Ich bin Ben. Ich war in der Sechs, dann bin ich abgehauen.“',
+                     '„Hier unten sucht keiner. Ich hab schon zwei Nächte.“');
+    if (S.weiss.krumen) sag('Nell', 'Die offenen Joghurts in der Teeküche. Die Krümel. Er war das.',
+                            'Nichts davon war ein Geist. Es war ein Kind mit Hunger.');
+  }
+  if (!S.hat.decke || !S.hat.schuh) {
+    return sag('Nell', 'Er rührt sich nicht. Er zittert so, dass die Rohre klappern.',
+                       S.hat.decke ? 'Ein Fuß ist nackt. Sein Schuh liegt noch oben an der Treppe.'
+                                   : 'Er braucht die Decke aus dem Flur. Sofort. So kommt er hier nicht raus.');
+  }
+  sag('Nell', 'Ich lege ihm die Decke um und ziehe ihm den Schuh an, so gut das im Sitzen geht.');
+  frage('Ben', '„Da oben steht immer einer im Flur. Siehst du den auch?“', [
+    { text: '„Da ist niemand, Ben.“', dann: () => {
+        sag('Ben', '„Okay.“', '(Er sagt okay und guckt weiter auf den Boden.)');
+        sag('Nell', 'Ich habe genau den Satz gesagt, den sie hier alle zu mir sagen.',
+                    'Er hat dabei genauso geguckt wie ich.');
+        benMit();
+      } },
+    { text: '„Ja. Ich sehe ihn auch.“', dann: () => {
+        S.wahrheit = true;
+        sag('Nell', 'Ja. Ich sehe ihn auch. Seit drei Wochen, jede Nacht.',
+                    'Er tut nichts. Er steht nur da, wo etwas passiert ist.');
+        sag('Ben', '„Und wenn man das sagt, kommt man hierher?“');
+        sag('Nell', 'Manchmal. Aber allein damit sein ist schlimmer.');
+        benMit();
+      } }
+  ]);
+}
+function benMit() {
+  S.jonasDabei = true;
+  sag('Nell', 'Ich nehme ihn mit hoch. Er wiegt nichts.',
+              'Oben steht das Stationstelefon auf dem Tresen. Schräg gegenüber ist die Zwei mit einem leeren Bett.',
+              'Ich weiß, was ich tun müsste. Ich weiß nur nicht, ob ich es kann.');
+}
+
+/* ---------- Das Telefon ---------- */
+function telefonAngefasst() {
+  if (!S.jonasDabei) {
+    S.telefonVersuche++;
+    if (S.telefonVersuche === 1)
+      return sag('Nell', 'Das Stationstelefon. Zwei Ziffern, dann klingelt es bei Frau Kessner im Dienstzimmer.',
+                         'Und dann? „Da ist ein Kind im Keller, ich habe es an der Stimme erkannt“?',
+                         'Sie schreiben alles auf. Alles, was ich sage, steht morgen in meiner Akte.');
+    return sag('Nell', 'Erst muss ich ihn finden. Alles andere kommt danach.');
+  }
+  if (S.ende) return;
+  if (!S.hat.zettel) {
+    return sag('Nell', 'Ich hebe ab und lege wieder auf.',
+                       'Die Nummer war eben noch da. Jetzt ist in meinem Kopf nur weißes Rauschen.',
+                       'Die Nachtdienstliste hängt in der Teeküche. Mit der in der Hand traue ich mich.');
+  }
+  S.telefonAktiv = true; S.mut = 0;
+  document.getElementById('augen').classList.add('sagen');
+  document.getElementById('augen').innerHTML = 'halten<br>zum<br>sagen';
+  sag('Nell', 'Ben steht neben mir und hält meinen Ärmel fest. Der Hörer ist leichter, als ich dachte.',
+              '(Halte den Knopf gedrückt, so lange du kannst.)');
+}
+function telefonGeschafft() {
+  S.telefonAktiv = false; S.halten = false;
+  const k = document.getElementById('augen');
+  k.classList.remove('sagen'); k.classList.add('aus');
+  sag('Nell', '„Frau Kessner? Hier ist Nell aus der Vier.“');
+  sag('Kessner', '„Nell. Es ist vier Uhr. Was ist los?“');
+  sag('Nell', '„In der Waschküche saß ein Junge. Ben, aus der Sechs. Seit zwei Nächten.“',
+              '„Er ist hier bei mir und er ist eiskalt.“');
+  sag('Kessner', '(Papier rutscht auf den Boden. Ein Stuhl schiebt zurück.)',
+                 '„Bleib genau da stehen. Ich komme sofort.“');
+  if (erkenntnisse() >= 3 && S.weiss.brief) {
+    sag('Nell', 'Sie will schon auflegen. Und dann sage ich den Satz, für den ich drei Wochen gebraucht habe.',
+                '„Frau Kessner. Freitag kommt mein Vater.“',
+                '„Ich will nicht allein mit ihm in einem Raum sein.“');
+    sag('Kessner', '(Sehr kurze Pause. Dann das Geräusch, vor dem ich seit drei Wochen Angst habe:',
+                   'jemand nimmt einen Stift.)',
+                   '„Ich schreibe das auf, Nell. Wort für Wort, so wie du es gesagt hast.“',
+                   '„Und dann liest das jemand, und dann sitzt Freitag jemand mit im Raum.“');
+    S.endeArt = 'aufgeschrieben';
+  }
+  else if (erkenntnisse() >= 3) { S.endeArt = 'wahrheit'; }
+  else { S.endeArt = 'nummer'; }
+  S.ende = true;
+}
+function telefonAufgegeben() {
+  S.telefonAktiv = false; S.halten = false; S.mut = 0;
+  const k = document.getElementById('augen');
+  k.classList.remove('sagen'); knopfBeschriften();
+  sag('Nell', 'Ich lege den Hörer wieder hin.', 'Vielleicht gleich. Vielleicht, wenn es hell ist.');
+}
+
+/* ---------- Enden ---------- */
+function schluss() {
+  if (S.ende) return;
+  S.ende = true; S.endeArt = 'leise';
+  sag('Nell', 'Ich bringe ihn in die Zwei und ziehe ihm die Decke bis ans Kinn.',
+              'Ich stelle die Klinke zurück in den Stumpf. Der Flur ist leer, niemand hat etwas gemerkt.',
+              'Um sechs kommt der Frühdienst, um acht die Visite, und ich sage, ich hätte gut geschlafen.',
+              'Ben sagt auch nichts. Wir sind gut darin, beide.');
+}
+function inDieBrandnacht() {
+  if (S.ende) return;
+  if (S.jonasDabei) {
+    return sag('Nell', 'Ben hält meinen Ärmel fest und geht keinen Schritt weiter.',
+                       'Nicht mit ihm. Nicht durch diese Tür.');
+  }
+  S.ende = true; S.endeArt = 'zurueck';
+  sag('Nell', 'Am Ende des Flurs steht eine Tür, die es hier nicht gibt. Unsere Haustür, offen, und dahinter ist es warm.',
+              'Ich rieche das Holz von unserer Treppe. Ich höre oben jemanden husten.',
+              'Diesmal hält mich keiner fest.',
+              '(Ich gehe rein.)');
+}
+
+/* ---------- Dinge im Raum ---------- */
+function dingeJetzt() {
+  const liste = [];
+  /* Begleiter zuerst: sie laufen überall mit und dürfen keine Klicks abfangen */
+  liste.push({ id: 'russ', name: 'Ruß', x: S.russ.x - 26, y: BODEN - 50, b: 54, h: 54, tun: russTun });
+  if (S.jonasDabei) liste.push({ id: 'jonas', name: 'Jonas', x: S.jonas.x - 24, y: BODEN - 112, b: 48, h: 114,
+    tun: () => sag('Jonas', S.wahrheit ? '„Kommt sie wirklich?“' : '„Ich bin müde, Nell.“') });
+  for (const d of szene().dinge) {
+    if (d.welt !== 'beide' && d.welt !== S.welt) continue;
+    if (d.sichtbar && !d.sichtbar()) continue;
+    if (d.id === 'grosser') liste.push(Object.assign({}, d,
+      { x: S.schatten.x - 38, y: 250, b: 76, h: 192,
+        laufX: S.schatten.x + (S.nell.x >= S.schatten.x ? 120 : -120) }));
+    else liste.push(d);
+  }
+  return liste;
+}
+function treffer(bx, by) {
+  /* Der kleinste passende Bereich gewinnt — kleine Dinge liegen immer über großen Möbeln */
+  let best = null, bestF = Infinity;
+  for (const d of dingeJetzt()) {
+    if (d.b <= 0 || d.h <= 0) continue;
+    if (bx < d.x - 8 || bx > d.x + d.b + 8 || by < d.y - 8 || by > d.y + d.h + 8) continue;
+    const f = d.b * d.h;
+    if (f < bestF) { best = d; bestF = f; }
+  }
+  return best;
+}
+function fuehreAus(d) {
+  if (S.szene === 'keller' && !S.hat.lampeAn && d.id !== 'hoch')
+    return sag('Nell', 'Ich taste nur ins Schwarze. So finde ich hier gar nichts.');
+  d.tun();
+}
+function klickAuf(bx, by) {
+  if (S.text) { if (!S.text.opt) textWeiter(); return; }
+  if (S.uebergang || S.augenZu > 0) return;
+  if (S.ende && S.endeArt) return;
+  const d = treffer(bx, by);
+  if (S.telefonAktiv && (!d || d.id !== 'telefon')) return telefonAufgegeben();
+  const gr = szene();
+  if (d) {
+    const zx = klemm(d.laufX !== undefined ? d.laufX : d.x + d.b / 2, gr.links, gr.rechts);
+    const tun = () => { S.nachZiel = null; fuehreAus(d); };
+    if (Math.abs(S.nell.x - zx) < 44) { S.nell.ziel = null; S.nell.geht = false; tun(); }
+    else { S.nell.ziel = zx; S.nachAktion = tun; S.nachWelt = S.welt; S.nachZiel = d.id; }
+  } else { S.nell.ziel = klemm(bx, gr.links, gr.rechts); S.nachAktion = null; S.nachZiel = null; }
+}
+
+/* ---------- Rechnen ---------- */
+let linksTaste = false, rechtsTaste = false;
+const WIDERSTAND = ['„Es ist doch nichts passiert.“', '„Du machst alles nur größer.“',
+                    '„Mama wird böse.“', '„Halt einfach durch.“'];
+function rechne(dt) {
+  zeit += dt; kochen = Math.floor(zeit * 7);
+
+  if (S.text) {
+    if (S.text.zeichen < S.text.voll.length) {
+      S.text.zeichen = Math.min(S.text.voll.length, S.text.zeichen + dt * 44);
+      elSatz.textContent = S.text.voll.slice(0, Math.floor(S.text.zeichen));
+    } else if (S.text.opt && !S.text.gezeigt) wahlZeigen();
+  }
+  if (S.karte) { S.karte.zeit += dt; if (S.karte.zeit > 3.6) S.karte = null; }
+
+  if (S.uebergang) {
+    S.uebergang.t += dt;
+    if (S.uebergang.t > 0.32 && !S.uebergang.getan) {
+      S.uebergang.getan = true;
+      S.szene = S.uebergang.ziel;
+      S.nell.x = S.uebergang.x; S.nell.ziel = null; S.nachAktion = null;
+      S.russ.x = S.uebergang.x - 60;
+      if (S.jonasDabei) S.jonas.x = S.uebergang.x - 34;
+      S.schatten.x = 940; S.schatten.klar = 0; S.schatten.aktiv = false;
+      if (!S.gesehen[S.szene]) { S.gesehen[S.szene] = true; kapitelKarte(szene().titel); }
+    }
+    if (S.uebergang.t > 0.68) S.uebergang = null;
+  }
+  if (S.augenZu > 0) S.augenZu = Math.max(0, S.augenZu - dt);
+
+  const gr = szene(), n = S.nell;
+  if (S.nachAktion && S.nachWelt && S.nachWelt !== S.welt) { S.nachAktion = null; S.nachZiel = null; S.nell.ziel = null; }
+  const frei = !S.text && !S.uebergang && S.augenZu <= 0 && !S.telefonAktiv && !(S.ende && S.endeArt);
+
+  const vorher = n.x;
+  if (frei && (linksTaste || rechtsTaste)) {
+    n.ziel = null; S.nachAktion = null; S.nachZiel = null;
+    n.x += (rechtsTaste ? 1 : -1) * GESCHW * dt; n.blick = rechtsTaste ? 1 : -1; n.geht = true;
+  } else if (frei && n.ziel !== null) {
+    const d = n.ziel - n.x;
+    if (Math.abs(d) < 5) { n.x = n.ziel; n.ziel = null; n.geht = false;
+      if (S.nachAktion) { const a = S.nachAktion; S.nachAktion = null; a(); } }
+    else { n.x += Math.sign(d) * GESCHW * dt; n.blick = Math.sign(d); n.geht = true; }
+  } else n.geht = false;
+  n.x = klemm(n.x, gr.links, gr.rechts);
+  /* eine halbe Schrittphase pro Schrittlänge — sonst rutschen die Füße über den Boden */
+  if (n.geht) n.ph += Math.abs(n.x - vorher) / 46 * Math.PI;
+
+  const folgt = (f, abstand, tempo) => {
+    const ziel = n.x - abstand * n.blick, d = ziel - f.x;
+    if (Math.abs(d) > 24) { f.x += Math.sign(d) * Math.min(Math.abs(d) * 2.6, tempo) * dt;
+      f.blick = Math.sign(d); f.geht = true; f.ph += dt * 12; } else f.geht = false;
+  };
+  folgt(S.russ, 62, 170);
+  if (S.jonasDabei) folgt(S.jonas, 34, 190);
+
+  /* Mut am Telefon */
+  if (S.telefonAktiv && !S.text) {
+    const dauer = S.wahrheit ? 2.6 : 4.8;
+    if (S.halten) S.mut = Math.min(1, S.mut + dt / dauer);
+    else S.mut = Math.max(0, S.mut - dt * 0.75);
+    if (S.mut >= 1) telefonGeschafft();
+  }
+
+  /* Drüben */
+  if (S.welt === 'drueben' && !S.ende) {
+    S.drubenZeit += dt;
+    const schwelle = S.schatten.gesehen ? 15 : 9;
+    if (S.drubenZeit > schwelle && !S.schatten.aktiv && S.szene !== 'garten') {
+      S.schatten.aktiv = true;
+      S.schatten.x = n.x > VB / 2 ? gr.links - 40 : gr.rechts + 40;
+    }
+  } else S.drubenZeit = Math.max(0, S.drubenZeit - dt * 2);
+
+  const sch = S.schatten;
+  if (sch.aktiv && S.welt === 'drueben') {
+    sch.klar = Math.min(1, sch.klar + dt * 0.7);
+    const d = n.x - sch.x;
+    // Wer auf ihn zugeht, den lässt er kommen. Er kann gut warten.
+    if (S.nachZiel !== 'grosser') sch.x += Math.sign(d) * 30 * dt;
+    if (Math.abs(d) < 46) {
+      sch.aktiv = false; sch.klar = 0; sch.x = 940;
+      S.welt = 'hier'; S.drubenZeit = 0; S.augenZu = 0.55;
+      knopfBeschriften();
+      n.x = klemm(n.x - 70 * n.blick, gr.links, gr.rechts);
+      n.ziel = null; S.nachAktion = null; S.nachZiel = null;
+      sag('Nell', 'Zu nah. Ich reiße die Augen auf und der Flur ist wieder ein Flur.',
+                  'Mein Herz macht Krach. Sonst ist nichts passiert.');
+    }
+  } else if (sch.klar > 0) sch.klar = Math.max(0, sch.klar - dt * 1.4);
+
+  /* Unheimliches, das einfach passiert */
+  if (S.flackern > 0) S.flackern -= dt;
+  if (S.huschen) { S.huschen.t += dt; if (S.huschen.t > 2.2) S.huschen = null; }
+  if (!S.ende && !S.text && !S.uebergang && !S.nell.geht && !S.nachAktion && !S.telefonAktiv) {
+    S.unheim -= dt;
+    if (S.unheim <= 0) { S.unheim = zuf(26, 48); unheimliches(); }
+  }
+
+  /* Enden */
+  if (S.ende && (S.endeArt === 'nummer' || S.endeArt === 'wahrheit' || S.endeArt === 'aufgeschrieben')) {
+    if (S.szene !== 'garten' && !S.text && !S.schlange.length && !S.uebergang) {
+      S.mamaFenster = true; wechsle('garten', 300);
+    }
+    if (S.szene === 'garten') {
+      S.morgen = Math.min(1, S.morgen + dt * 0.16);
+      if (S.morgen > 0.35) S.auto = Math.min(1, S.auto + dt * 0.5);
+      if (S.morgen > 0.9 && !S.abgeschlossen && !S.text && !S.schlange.length) {
+        S.abgeschlossen = true;
+        if (S.endeArt === 'aufgeschrieben')
+          endeZeigen('Was aufgeschrieben wird',
+            'Sie holen Ben mit zwei Decken hoch. Danach setzt Frau Kessner sich in den Innenhof, obwohl sie das ' +
+            'nicht darf, und beantwortet drei Fragen. In der Akte steht nicht <i>tot</i>, sondern <i>vermisst</i>. ' +
+            'Die Großen waren Nachbarn, die ein Kind aus einer brennenden Tür gezogen haben — bis auf einen.<br><br>' +
+            'Und auf Seite vier steht ab heute ein Satz von Nell, wörtlich, mit Datum: dass sie Freitag nicht allein ' +
+            'mit ihrem Vater in einem Raum sein will.<br><br>' +
+            'Drei Wochen lang war Aufschreiben das, wovor sie Angst hatte. Es ist dasselbe Aufschreiben. ' +
+            'Es steht jetzt nur auf ihrer Seite.', 'aufgeschrieben');
+        else if (S.endeArt === 'wahrheit')
+          endeZeigen('Was in der Akte steht',
+            'Sie holen Ben mit zwei Decken und einer Wärmflasche hoch. Danach setzt Frau Kessner sich zu Nell in den ' +
+            'Innenhof, obwohl sie das nicht darf, und beantwortet drei Fragen.<br><br>' +
+            'In der Akte steht nicht <i>tot</i>. In der Akte steht <i>vermisst</i>, und daneben ein Datum, an dem noch ' +
+            'gesucht wurde. Die Großen waren Nachbarn, die ein Kind aus einer brennenden Tür gezogen haben.<br><br>' +
+            'Nichts davon bringt Jonas zurück. Aber Nell hat drei Wochen lang für verrückt gehalten, was einfach nur wahr war.',
+            'wahrheit');
+        else
+          endeZeigen('Vier Uhr zwölf',
+            'Frau Kessner trägt Ben mit einer Decke aus dem Keller hoch und schimpft die ganze Zeit leise, hält ihn ' +
+            'aber fest. Im Innenhof wird der Himmel grau.<br><br>' +
+            'Ein Kind ist gefunden, ein Absatz steht morgen in der Akte, und niemand hat Nell gefragt, warum sie ' +
+            'überhaupt im Keller war. Sie hat auch nicht erzählt, wen sie da unten gesucht hat.',
+            'nummer');
+      }
+    }
+  }
+  if (S.ende && S.endeArt === 'leise' && !S.abgeschlossen && !S.text && !S.schlange.length) {
+    S.abgeschlossen = true;
+    endeZeigen('Noch eine Nacht',
+      'Ben liegt wieder in der Zwei. Die Klinke steckt im Stumpf, der Flur ist leer, niemand hat etwas gemerkt. ' +
+      'Bei der Visite sagt Nell, sie habe gut geschlafen, und alle nicken.<br><br>' +
+      'Ben sagt auch nichts, weil er gelernt hat, dass Sagen Folgen hat. Zwei Kinder auf einer Station, ' +
+      'die beide dasselbe verschweigen.<br><br>Morgen ist wieder drei Uhr elf.', 'leise', true);
+  }
+  if (S.ende && S.endeArt === 'zurueck' && !S.abgeschlossen && !S.text && !S.schlange.length) {
+    S.abgeschlossen = true;
+    endeZeigen('Der Weg zurück',
+      'Um kurz nach sechs findet der Frühdienst Nell in der Waschküche, auf dem kalten Boden, mit dem Rücken an der ' +
+      'Trommel. Sie ist wach. Sie antwortet nicht.<br><br>' +
+      'Was sie gesehen hat, steht in keinem Bogen: eine offene Haustür, Holz, das nach ihrer Treppe riecht, und oben ' +
+      'jemand, der hustet. Diesmal hat sie niemand festgehalten.<br><br>' +
+      'Zwei Stockwerke tiefer sitzt ein Junge namens Ben immer noch hinter der Waschtrommel und wartet, dass jemand kommt.',
+      'zurueck', true);
+  }
+}
+function endeZeigen(titel, text, art, anders) {
+  let gefunden = {};
+  try { gefunden = JSON.parse(localStorage.getItem('enden') || '{}'); } catch (e) {}
+  gefunden[art] = true;
+  try { localStorage.setItem('enden', JSON.stringify(gefunden)); } catch (e) {}
+  const zahl = Object.keys(gefunden).length;
+  document.getElementById('endetitel').textContent = titel;
+  document.getElementById('endetext').innerHTML = text +
+    '<br><br><span style="color:#7E8C86;font-size:13px">Enden gefunden: ' + zahl + ' von 5</span>';
+  document.getElementById('anders').style.display = anders ? '' : 'none';
+  document.getElementById('ende').classList.add('an');
+  document.getElementById('augen').classList.add('aus');
+}
+/* Kleine Schrecken auf der Station — die gehören zum Haus, nicht zu drüben */
+const UNHEIMLICH = [
+  { t: ['Das Neonlicht über dem Flur geht aus und wieder an.', 'Beim zweiten Mal bleibt es einen Herzschlag zu lange aus.'], flackern: 1 },
+  { t: ['Hinten am Gang geht jemand vorbei. Groß, ohne Eile.', 'Als ich hinsehe, ist der Gang leer bis zur Wand.'], huschen: 1 },
+  { t: ['Irgendwo klickt eine Sprechanlage an.', 'Zwei Sekunden atmet jemand hinein, dann klickt es wieder aus.'] },
+  { t: ['In der Wand neben mir klopft es dreimal. Kurz, ordentlich, wie jemand, der Bescheid gibt.'] },
+  { t: ['Auf dem Linoleum sind Fußabdrücke. Klein, nass, und sie führen in beide Richtungen.'] },
+  { t: ['Aus einem der Zimmer weint jemand, sehr leise.', 'Es hört genau in dem Moment auf, in dem ich stehen bleibe.'] },
+  { t: ['Mein Name steht plötzlich auf der Wandtafel neben der Belegung.', 'Er stand da vorhin schon. Ich weiß nur nicht mehr, ob mit Kreide.'] },
+  { t: ['Irgendwo im Haus klimpert ein Schlüsselbund.', 'Nachtdienst, sage ich mir. Hier haben alle Schlüssel.',
+        'Ich stehe trotzdem still, bis es aufhört. Das mache ich, seit ich klein bin.'] },
+  { t: ['Schritte auf dem Gang. Sie werden langsamer und hören genau vor einer Tür auf.',
+        'Ich kann am Tempo hören, wie einer drauf ist. Das konnte ich immer.', 'Es geht weiter. Es war nur jemand vom Dienst.'] }
+];
+function unheimliches() {
+  if (S.welt !== 'hier' || S.szene === 'garten') return;
+  const e = UNHEIMLICH[Math.floor(Math.random() * UNHEIMLICH.length)];
+  if (e.flackern) S.flackern = 0.9;
+  if (e.huschen) S.huschen = { x: szene().rechts + 60, t: 0 };
+  sag('Nell', ...e.t);
+}
+function zurueckZurEntscheidung() {
+  document.getElementById('ende').classList.remove('an');
+  document.getElementById('augen').classList.remove('aus');
+  S.ende = false; S.endeArt = null; S.abgeschlossen = false;
+  S.szene = 'flur'; S.nell.x = 640; S.russ.x = 580; S.jonas.x = 606;
+  S.welt = 'hier'; S.text = null; S.schlange = []; elText.classList.remove('an');
+  sag('Nell', 'Ich stehe wieder auf dem Flur. Jonas hängt an meinem Ärmel und wartet.',
+              'Links die Zwei mit seinem leeren Bett, rechts das Telefon. Beides war die ganze Zeit da.');
+}
+
+/* ==========================================================================
+   Bild
+   ========================================================================== */
+const TASCHENBILD = {
+  klinke: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.4" stroke-linecap="round"><path d="M9 25V9h14"/><circle cx="9" cy="26" r="3"/></svg>',
+  lampeAus: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2"><rect x="5" y="12" width="15" height="8" rx="1.5"/><path d="M20 9h6v14h-6z"/></svg>',
+  lampeAn: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2"><rect x="4" y="12" width="14" height="8" rx="1.5"/><path d="M18 9h5v14h-5z" fill="#FFE9B8" stroke="#FFE9B8"/><path d="M25 11l4-2M25 16h5M25 21l4 2" stroke="#FFCB7E" stroke-linecap="round"/></svg>',
+  batterien: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2"><rect x="6" y="9" width="7" height="16" rx="1"/><rect x="18" y="9" width="7" height="16" rx="1"/><path d="M8 9V7h3v2M20 9V7h3v2"/></svg>',
+  decke: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2" stroke-linejoin="round"><path d="M5 22l3-12 15-3 4 11-9 6z"/><circle cx="12" cy="14" r="1.4" fill="#EDE3D3"/><circle cx="19" cy="17" r="1.4" fill="#EDE3D3"/></svg>',
+  schuh: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2" stroke-linejoin="round"><path d="M5 22v-6l7-3 9 5h6v4z"/></svg>',
+  brief: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2" stroke-linejoin="round"><rect x="4" y="8" width="24" height="17" rx="1"/><path d="M4 9l12 9 12-9"/></svg>',
+  zettel: '<svg viewBox="0 0 32 32" fill="none" stroke="#EDE3D3" stroke-width="2.2"><rect x="8" y="5" width="16" height="22" rx="1.5"/><path d="M12 12h8M12 17h8M12 22h5" stroke-linecap="round"/></svg>'
+};
+const TASCHENTEXT = {
+  klinke: ['Eine Türklinke aus einem Baumstumpf, den es angeblich nicht gibt.', 'Sie passt trotzdem in jede Tür hier.'],
+  lampe: ['Meine Taschenlampe. Offiziell abgegeben, tatsächlich unter der Matratze.'],
+  batterien: ['Zwei Batterien aus dem Spiegelschrank.'],
+  decke: ['Jonas\u2019 Decke mit den Sternen. Er schläft nicht ohne sie.'],
+  schuh: ['Ein blauer Hausschuh, Größe achtundzwanzig.'],
+  zettel: ['Die Nachtdienstliste. Kessner, Hausnummer 214.', 'Zwei Ziffern. Mehr ist es nicht.'],
+  brief: ['Drei Zeilen in seiner Schrift. Freitag, vierzehn Uhr.', 'Ich habe ihn eingesteckt, statt ihn wegzuwerfen. Das muss etwas heißen.']
+};
+let taschenStand = '';
+function tascheAktualisieren() {
+  const el = document.getElementById('tasche');
+  if (!S || imMenue()) { if (el.innerHTML !== '') el.innerHTML = ''; taschenStand = ''; return; }
+  const liste = [];
+  if (S.hat.klinke === true) liste.push(['klinke', 'Klinke', TASCHENBILD.klinke]);
+  if (S.hat.lampe) liste.push(['lampe', 'Lampe', S.hat.lampeAn ? TASCHENBILD.lampeAn : TASCHENBILD.lampeAus]);
+  if (S.hat.batterien && !S.hat.lampeAn) liste.push(['batterien', 'Batterien', TASCHENBILD.batterien]);
+  if (S.hat.decke && !S.jonasDabei) liste.push(['decke', 'Decke', TASCHENBILD.decke]);
+  if (S.hat.schuh && !S.jonasDabei) liste.push(['schuh', 'Schuh', TASCHENBILD.schuh]);
+  if (S.hat.zettel) liste.push(['zettel', 'Nummer', TASCHENBILD.zettel]);
+  if (S.weiss.brief) liste.push(['brief', 'Brief', TASCHENBILD.brief]);
+  const stand = liste.map(x => x[0] + x[2].length).join('|');
+  if (stand === taschenStand) return;
+  taschenStand = stand;
+  el.innerHTML = '';
+  for (const [id, name, bild] of liste) {
+    const f = document.createElement('div');
+    f.className = 'fach'; f.innerHTML = bild + '<b>' + name + '</b>';
+    f.onclick = ev => { ev.stopPropagation();
+      if (S.text || S.uebergang) return;
+      sag('Nell', ...(TASCHENTEXT[id] || ['Etwas, das ich eingesteckt habe.'])); };
+    el.appendChild(f);
+  }
+}
+function mutZeichnen() {
+  const x = S.nell.x, y = BODEN - 74;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(237,227,211,.22)'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(x, y, 40, 0, TAU); ctx.stroke();
+  ctx.strokeStyle = '#E8B863'; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.arc(x, y, 40, -Math.PI / 2, -Math.PI / 2 + S.mut * TAU); ctx.stroke();
+  const i = Math.min(WIDERSTAND.length - 1, Math.floor(S.mut * WIDERSTAND.length));
+  ctx.globalAlpha = 0.75 - Math.abs((S.mut * WIDERSTAND.length % 1) - 0.5);
+  ctx.font = 'italic 300 21px Newsreader, Georgia, serif';
+  ctx.fillStyle = '#C9BFD8'; ctx.textAlign = 'center';
+  ctx.fillText(WIDERSTAND[i], x, y - 62);
+  ctx.restore();
+}
+function karteZeichnen() {
+  const t = S.karte.zeit;
+  const a = t < 0.6 ? t / 0.6 : (t > 2.6 ? klemm(1 - (t - 2.6) / 1, 0, 1) : 1);
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = 'rgba(7,6,11,.55)'; ctx.fillRect(0, VH * .34, VB, 92);
+  ctx.font = '300 34px Gloock, Newsreader, Georgia, serif';
+  ctx.fillStyle = '#EDE3D3'; ctx.textAlign = 'center';
+  ctx.fillText(S.karte.t, VB / 2, VH * .34 + 58);
+  ctx.restore();
+}
+/* Die andere Seite: eng, dunkel, mit etwas an den Rändern */
+function grauen() {
+  const eng = klemm(S.drubenZeit / 22, 0, 1);
+  const puls = 0.5 + 0.5 * Math.sin(zeit * 1.7);
+  ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = .44;
+  ctx.fillStyle = '#4A1A22'; ctx.fillRect(0, 0, VB, VH); ctx.restore();
+  ctx.save();
+  const tief = 60 + eng * 120;
+  for (let i = 0; i < 14; i++) {
+    const t = i / 13, oben = i % 2 === 0;
+    const x = t * VB + Math.sin(zeit * .5 + i) * 12;
+    const l = tief * (0.5 + hash3(i, 3, 0) * 0.9) * (0.85 + puls * 0.15);
+    ctx.beginPath();
+    ctx.moveTo(x, oben ? -10 : VH + 10);
+    ctx.quadraticCurveTo(x + (oben ? 40 : -40), oben ? l * .5 : VH - l * .5,
+                         x + Math.sin(zeit * .7 + i) * 26, oben ? l : VH - l);
+    ctx.strokeStyle = 'rgba(6,3,6,.92)';
+    ctx.lineWidth = 26 - (i % 4) * 5; ctx.lineCap = 'round'; ctx.stroke();
+  }
+  ctx.restore();
+  if (eng > .25) {
+    ctx.save(); ctx.globalAlpha = (eng - .25) * 1.1;
+    for (let i = 0; i < 5; i++) {
+      const x = 90 + hash3(i, 7, 1) * (VB - 180), y = 60 + hash3(i, 9, 2) * 260;
+      if (Math.sin(zeit * .8 + i * 2) <= -.2) continue;
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      kreis(x, y, 5.5, 'rgba(214,90,70,.75)', null, 0, .6);
+      ctx.restore();
+      kreis(x, y, 2.2, '#120608', null, 0, .4);
+    }
+    ctx.restore();
+  }
+  vignette(1, 'rgba(3,1,3,' + (0.52 + eng * 0.26 + puls * 0.04) + ')');
+  if (Math.sin(zeit * 3.1) > 0.995) { ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fillRect(0, 0, VB, VH); }
+}
+function zeichne() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = '#07060B'; ctx.fillRect(0, 0, cv.width / dpr, cv.height / dpr);
+  ctx.save();
+  ctx.translate(versatzX, versatzY); ctx.scale(skala, skala);
+  ctx.beginPath(); ctx.rect(0, 0, VB, VH); ctx.clip();
+
+  const d = S.welt === 'drueben';
+  szene().zeichne(S.welt);
+
+  const leute = [{ art: 'russ', x: S.russ.x }, { art: 'nell', x: S.nell.x }];
+  if (S.jonasDabei) leute.push({ art: 'jonas', x: S.jonas.x });
+  leute.sort((a, b) => a.x - b.x);
+  for (const l of leute) {
+    if (l.art === 'russ') russZeichnen(S.russ.x, BODEN, S.russ.blick, d, S.russ.geht, S.russ.ph);
+    else if (l.art === 'jonas') jonasZeichnen(S.jonas.x, BODEN, S.jonas.blick, S.jonas.geht, S.jonas.ph, d, false);
+    else nellZeichnen(S.nell.x, BODEN, S.nell.blick, S.nell.geht, S.nell.ph, d, S.hat.lampe ? S.hat.lampeAn : null);
+  }
+  if (S.jonasGefunden && !S.jonasDabei && S.szene === 'keller')
+    jonasZeichnen(208, BODEN, 1, false, 0, d);
+
+  if (S.huschen) {
+    const t = S.huschen.t / 2.2;
+    schattenZeichnen(S.huschen.x - t * (szene().rechts - szene().links + 200), 442, 1.35,
+                     Math.sin(t * Math.PI) * 0.5);
+  }
+  lichtStrahl();
+
+  if (d) grauen(); else {
+    vignette(1, 'rgba(4,7,8,.66)');
+    if (S.flackern > 0) {
+      const f = Math.sin(S.flackern * 34) > 0 ? 0.62 : 0.12;
+      ctx.fillStyle = 'rgba(2,5,5,' + f + ')'; ctx.fillRect(0, 0, VB, VH);
+    }
+  }
+
+  if (S.telefonAktiv && !S.text) mutZeichnen();
+  korn(S.welt === 'drueben' ? 0.13 : 0.06);
+  if (S.karte) karteZeichnen();
+  ctx.restore();
+
+  const b = cv.width / dpr, h = cv.height / dpr;
+  if (S.augenZu > 0) {
+    const t = klemm(1 - Math.abs(S.augenZu - 0.31) / 0.31, 0, 1);
+    ctx.fillStyle = '#07060B';
+    ctx.fillRect(0, 0, b, h * .5 * t); ctx.fillRect(0, h - h * .5 * t, b, h * .5 * t + 1);
+  }
+  if (S.uebergang) {
+    const t = S.uebergang.t;
+    const a = t < 0.32 ? t / 0.32 : klemm(1 - (t - 0.32) / 0.36, 0, 1);
+    ctx.fillStyle = 'rgba(7,6,11,' + a + ')'; ctx.fillRect(0, 0, b, h);
+  }
+}
+
+/* ==========================================================================
+   Eingabe
+   ========================================================================== */
+const elMarke = document.getElementById('marke');
+const knopf = document.getElementById('augen');
+function imMenue() {
+  return ['titel', 'hilfe', 'ende'].some(i => document.getElementById(i).classList.contains('an'));
+}
+cv.addEventListener('pointerdown', e => {
+  elMarke.classList.remove('an');
+  if (!S || imMenue()) return;
+  const p = zuBuehne(e.clientX, e.clientY);
+  klickAuf(p.x, p.y);
+});
+cv.addEventListener('pointermove', e => {
+  if (e.pointerType && e.pointerType !== 'mouse') { elMarke.classList.remove('an'); return; }
+  if (!S || S.text || imMenue()) { elMarke.classList.remove('an'); return; }
+  const p = zuBuehne(e.clientX, e.clientY);
+  const d = treffer(p.x, p.y);
+  if (d) {
+    elMarke.textContent = d.name;
+    elMarke.style.left = (e.clientX + 14) + 'px'; elMarke.style.top = (e.clientY - 26) + 'px';
+    elMarke.classList.add('an'); cv.classList.add('zeigend');
+  } else { elMarke.classList.remove('an'); cv.classList.remove('zeigend'); }
+});
+knopf.addEventListener('pointerdown', e => {
+  e.preventDefault(); e.stopPropagation();
+  if (!S) return;
+  if (S.telefonAktiv) { S.halten = true; knopf.classList.add('gedrueckt'); }
+  else augenUm();
+});
+const losLassen = () => { if (S) S.halten = false; knopf.classList.remove('gedrueckt'); };
+knopf.addEventListener('pointerup', losLassen);
+knopf.addEventListener('pointercancel', losLassen);
+knopf.addEventListener('pointerleave', losLassen);
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'arrowleft' || k === 'a') linksTaste = true;
+  if (k === 'arrowright' || k === 'd') rechtsTaste = true;
+  if ((k === 'q' || k === 'y' || k === 'shift') && S && !S.telefonAktiv) augenUm();
+  if (k === ' ' || k === 'enter') {
+    e.preventDefault();
+    if (!S) return;
+    if (S.telefonAktiv) { S.halten = true; knopf.classList.add('gedrueckt'); }
+    else if (S.text) textWeiter();
+  }
+  if (k === 'e' && S && !S.text) {
+    const l = dingeJetzt().filter(x => Math.abs((x.laufX !== undefined ? x.laufX : x.x + x.b / 2) - S.nell.x) < 90);
+    if (l.length) fuehreAus(l[0]);
+  }
+});
+addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  if (k === 'arrowleft' || k === 'a') linksTaste = false;
+  if (k === 'arrowright' || k === 'd') rechtsTaste = false;
+  if (k === ' ' || k === 'enter') losLassen();
+});
+addEventListener('blur', () => { linksTaste = rechtsTaste = false; losLassen(); });
+
+function endenstand() {
+  let g = {};
+  try { g = JSON.parse(localStorage.getItem('enden') || '{}'); } catch (e) {}
+  const n = Object.keys(g).length;
+  const el = document.getElementById('endenstand');
+  el.textContent = n ? 'Enden gefunden: ' + n + ' von 5' : '';
+}
+const zeigeLage = id => {
+  ['titel', 'hilfe', 'ende'].forEach(i => document.getElementById(i).classList.toggle('an', i === id));
+  if (id === 'titel') endenstand();
+};
+function starte() {
+  neu(); zeigeLage('');
+  knopf.classList.remove('aus', 'zu', 'sagen'); knopfBeschriften();
+  elText.classList.remove('an'); elWahl.innerHTML = '';
+  S.gesehen.zimmer = true; kapitelKarte(SZENEN.zimmer.titel);
+  sag('Nell', 'Vor drei Wochen hat unser Haus gebrannt. Nachts, ohne Vorwarnung.',
+              'Mich haben sie draußen gefunden, barfuß, mit Ruß an den Händen. Meinen kleinen Bruder Jonas nicht.',
+              'Seitdem sehe ich die Großen: dünn, sehr hoch, ohne Gesicht. Sie stehen da, wo nichts steht.',
+              'Ich habe das einmal jemandem erzählt. Deshalb liege ich jetzt hier, Zimmer 4, dritte Woche.',
+              'Drei Uhr elf. Eben hat jemand an meine Tür geklopft. Zwei kleine Schläge, auf Kinderhöhe.',
+              'Und von der Treppe her hat eine Stimme gesagt: „Nell, ich hab meinen Schuh verloren.“');
+}
+document.getElementById('anfangen').onclick = starte;
+document.getElementById('nochmal').onclick = starte;
+document.getElementById('anders').onclick = zurueckZurEntscheidung;
+document.getElementById('wieso').onclick = () => zeigeLage('hilfe');
+document.getElementById('hilfezu').onclick = () => zeigeLage('titel');
+document.getElementById('zumtitel').onclick = () => { zeigeLage('titel'); knopf.classList.add('aus'); };
+
+let letzte = 0;
+function schleife(t) {
+  requestAnimationFrame(schleife);
+  const dt = Math.min(0.05, letzte ? (t - letzte) / 1000 : 0.016);
+  letzte = t;
+  if (!S) return;
+  if (!imMenue()) rechne(dt); else { zeit += dt; kochen = Math.floor(zeit * 7); }
+  zeichne();
+  tascheAktualisieren();
+}
+passeAn(); neu(); knopf.classList.add('aus'); endenstand();
+requestAnimationFrame(schleife);
+</script>
+</body>
+</html>
